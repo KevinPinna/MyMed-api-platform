@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/doctors")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin("http://localhost:5173")
 public class DoctorController {
 
     private final DoctorService doctorService;
@@ -18,12 +18,22 @@ public class DoctorController {
     }
 
     @GetMapping
-    public List<Doctor> getDoctors() {
+    public List<Doctor> getAll() {
         return doctorService.getAll();
     }
 
     @PostMapping
-    public Doctor createDoctor(@RequestBody Doctor doctor) {
+    public Doctor create(@RequestBody Doctor doctor) {
         return doctorService.create(doctor);
+    }
+
+    @GetMapping("/{id}")
+    public Doctor getById(@PathVariable String id) {
+        return doctorService.getById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable String id) {
+        doctorService.delete(id);
     }
 }

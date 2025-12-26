@@ -2,14 +2,11 @@ package com.example.mymed.service;
 
 import com.example.mymed.model.Doctor;
 import com.example.mymed.repository.DoctorRepository;
-
-
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
@@ -24,5 +21,14 @@ public class DoctorService {
 
     public Doctor create(Doctor doctor) {
         return doctorRepository.save(doctor);
+    }
+
+    public Doctor getById(String id) {
+        return doctorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+    }
+
+    public void delete(String id) {
+        doctorRepository.deleteById(id);
     }
 }

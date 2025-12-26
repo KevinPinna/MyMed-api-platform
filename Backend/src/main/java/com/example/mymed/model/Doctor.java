@@ -1,18 +1,24 @@
 package com.example.mymed.model;
-import lombok.Data;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Data
+@Document("doctors")
 @Getter
 @Setter
-@Document("doctors")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Doctor {
 
     @Id
     private String id;
+
     private String name;
     private String specialization;
 }
