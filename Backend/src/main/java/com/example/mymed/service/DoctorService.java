@@ -1,7 +1,7 @@
-package dev.kevin.mymed.service;
+package com.example.mymed.service;
 
-import dev.kevin.mymed.model.Doctor;
-import dev.kevin.mymed.repository.DoctorRepository;
+import com.example.mymed.model.Doctor;
+import com.example.mymed.repository.DoctorRepository;
 
 
 import org.springframework.stereotype.Service;

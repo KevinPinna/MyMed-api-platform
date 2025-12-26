@@ -1,6 +1,6 @@
-package dev.kevin.mymed.repository;
+package com.example.mymed.repository;
 
-import dev.kevin.mymed.model.Doctor;
+import com.example.mymed.model.Doctor;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 public interface DoctorRepository extends MongoRepository<Doctor, String> {

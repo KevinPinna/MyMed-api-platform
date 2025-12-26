@@ -1,7 +1,7 @@
-package dev.kevin.mymed.controller;
+package com.example.mymed.controller;
 
-import dev.kevin.mymed.model.Doctor;
-import dev.kevin.mymed.service.DoctorService;
+import com.example.mymed.model.Doctor;
+import com.example.mymed.service.DoctorService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

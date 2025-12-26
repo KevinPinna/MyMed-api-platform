@@ -1,4 +1,4 @@
-package dev.kevin.mymed.model;
+package com.example.mymed.model;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,4 +16,3 @@ public class Doctor {
     private String name;
     private String specialization;
 }
-

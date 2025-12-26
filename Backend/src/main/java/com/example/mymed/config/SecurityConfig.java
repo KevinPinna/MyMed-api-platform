@@ -1,4 +1,4 @@
-package dev.kevin.mymed.config;
+package com.example.mymed.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
