@@ -1,7 +1,9 @@
 package com.example.mymed.controller;
 
+import com.example.mymed.dto.DoctorRequest;
 import com.example.mymed.model.Doctor;
 import com.example.mymed.service.DoctorService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,8 +25,8 @@ public class DoctorController {
     }
 
     @PostMapping
-    public Doctor create(@RequestBody Doctor doctor) {
-        return doctorService.create(doctor);
+    public Doctor create(@Valid @RequestBody DoctorRequest request) {
+        return doctorService.create(request);
     }
 
     @GetMapping("/{id}")

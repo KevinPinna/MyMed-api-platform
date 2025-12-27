@@ -1,5 +1,8 @@
 package com.example.mymed.service;
 
+import com.example.mymed.dto.DoctorRequest;
+import com.example.mymed.exception.DoctorNotFoundException;
+import com.example.mymed.mapper.DoctorMapper;
 import com.example.mymed.model.Doctor;
 import com.example.mymed.repository.DoctorRepository;
 import org.springframework.stereotype.Service;
@@ -19,16 +22,20 @@ public class DoctorService {
         return doctorRepository.findAll();
     }
 
-    public Doctor create(Doctor doctor) {
+    public Doctor create(DoctorRequest request) {
+        Doctor doctor = DoctorMapper.toEntity(request);
         return doctorRepository.save(doctor);
     }
 
     public Doctor getById(String id) {
         return doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+                .orElseThrow(() -> new DoctorNotFoundException(id));
     }
 
     public void delete(String id) {
+        if (!doctorRepository.existsById(id)) {
+            throw new DoctorNotFoundException(id);
+        }
         doctorRepository.deleteById(id);
     }
 }
