@@ -1,34 +1,57 @@
 package com.example.mymed.exception;
 
-//Gestione Globale delle eccezioni
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public Map<String, Object> handleDoctorNotFound(ResourceNotFoundException ex) {
-        return Map.of(
-                "status", HttpStatus.NOT_FOUND.value(),
-                "error", ex.getMessage()
+    // Errori di validazione @Valid
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex) {
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors()
+                .forEach(error -> fieldErrors.put(error.getField(), error.getDefaultMessage()));
+
+        Map<String, Object> body = Map.of(
+                "status", 400,
+                "errors", fieldErrors
         );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, Object> handleValidationErrors(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors()
-                .forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));
+    // Risorsa non trovata (404)
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex) {
 
-        return Map.of(
-                "status", HttpStatus.BAD_REQUEST.value(),
-                "errors", errors
+        Map<String, Object> body = Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 404,
+                "error", ex.getMessage()
         );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
+    }
+
+    // Errori di business (400)
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<?> handleBadRequest(BadRequestException ex) {
+
+        Map<String, Object> body = Map.of(
+                "timestamp", LocalDateTime.now(),
+                "status", 400,
+                "error", ex.getMessage()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 }
