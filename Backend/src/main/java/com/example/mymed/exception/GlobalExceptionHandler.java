@@ -12,8 +12,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(DoctorNotFoundException.class)
-    public Map<String, Object> handleDoctorNotFound(DoctorNotFoundException ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public Map<String, Object> handleDoctorNotFound(ResourceNotFoundException ex) {
         return Map.of(
                 "status", HttpStatus.NOT_FOUND.value(),
                 "error", ex.getMessage()

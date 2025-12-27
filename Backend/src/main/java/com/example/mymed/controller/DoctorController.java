@@ -4,6 +4,7 @@ import com.example.mymed.dto.DoctorRequest;
 import com.example.mymed.model.Doctor;
 import com.example.mymed.service.DoctorService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class DoctorController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String id) {
         doctorService.delete(id);
     }

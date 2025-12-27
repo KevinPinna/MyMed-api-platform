@@ -1,7 +1,7 @@
 package com.example.mymed.service;
 
 import com.example.mymed.dto.DoctorRequest;
-import com.example.mymed.exception.DoctorNotFoundException;
+import com.example.mymed.exception.ResourceNotFoundException;
 import com.example.mymed.mapper.DoctorMapper;
 import com.example.mymed.model.Doctor;
 import com.example.mymed.repository.DoctorRepository;
@@ -29,12 +29,12 @@ public class DoctorService {
 
     public Doctor getById(String id) {
         return doctorRepository.findById(id)
-                .orElseThrow(() -> new DoctorNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException("Dottore non trovato con id: " + id));
     }
 
     public void delete(String id) {
         if (!doctorRepository.existsById(id)) {
-            throw new DoctorNotFoundException(id);
+            throw new ResourceNotFoundException("Dottore non trovato con id: " + id);
         }
         doctorRepository.deleteById(id);
     }
