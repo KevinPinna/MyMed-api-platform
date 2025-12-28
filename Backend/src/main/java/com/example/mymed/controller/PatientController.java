@@ -6,6 +6,7 @@ import com.example.mymed.service.PatientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,23 +19,32 @@ public class PatientController {
 
     private final PatientService service;
 
+    // Crea paziente (es. segreteria / admin)
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public Patient create(@Valid @RequestBody PatientRequest request) {
         return service.create(request);
     }
 
+    // Tutti i pazienti (admin, medici)
     @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
     public List<Patient> getAll() {
         return service.findAll();
     }
 
+    // Dettaglio paziente
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
     public Patient getById(@PathVariable String id) {
         return service.findById(id);
     }
 
+    // Elimina paziente
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void delete(@PathVariable String id) {
         service.delete(id);
     }
