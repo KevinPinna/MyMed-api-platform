@@ -4,10 +4,12 @@ import com.example.mymed.dto.DoctorRequest;
 import com.example.mymed.exception.ResourceNotFoundException;
 import com.example.mymed.mapper.DoctorMapper;
 import com.example.mymed.model.Doctor;
+import com.example.mymed.model.DoctorSpecialization;
 import com.example.mymed.repository.DoctorRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DoctorService {
@@ -18,8 +20,12 @@ public class DoctorService {
         this.doctorRepository = doctorRepository;
     }
 
-    public List<Doctor> getAll() {
-        return doctorRepository.findAll();
+    public List<Doctor> getAll(DoctorSpecialization specialization) {
+        if (Objects.isNull(specialization)) {
+            return doctorRepository.findAll();
+        }
+
+        return doctorRepository.findBySpecialization(specialization);
     }
 
     public Doctor create(DoctorRequest request) {

@@ -9,6 +9,8 @@ public class DoctorMapper {
         return Doctor.builder()
                 .name(request.getName())
                 .specialization(request.getSpecialization())
+                .availabilityDays(request.getAvailabilityDays())
+                .availabilityShift(request.getAvailabilityShift())
                 .build();
     }
 }
