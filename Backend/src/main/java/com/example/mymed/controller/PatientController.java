@@ -12,6 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/patients")
+@CrossOrigin("http://localhost:5173")
 @RequiredArgsConstructor
 public class PatientController {
 

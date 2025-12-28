@@ -26,15 +26,15 @@ public class AppointmentService {
 
     public Appointment create(AppointmentRequest request) {
 
-        // 1) Verifico che il doctor esista
+        //Verifico che il doctor esista
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Dottore non trovato"));
 
-        // 2) Verifico che il paziente esista
+        //Verifico che il paziente esista
         Patient patient = patientRepository.findById(request.getPatientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Paziente non trovato"));
 
-        // 3) Validazione orario di lavoro e formato slot
+        //Validazione orario di lavoro e formato slot
         LocalDateTime dateTime = request.getDateTime();
         int hour = dateTime.getHour();
         int minute = dateTime.getMinute();
@@ -54,10 +54,10 @@ public class AppointmentService {
             );
         }
 
-        // 4) Normalizzo la data/ora allo scoccare dell'ora (per sicurezza)
+        //Normalizzo la data/ora allo scoccare dell'ora
         LocalDateTime slotStart = dateTime.withMinute(0).withSecond(0).withNano(0);
 
-        // 5) Controllo se esiste già un appuntamento in quello slot per quel dottore
+        //Controllo se esiste già un appuntamento in quello slot per quel dottore
         boolean exists = appointmentRepository
                 .existsByDoctorIdAndDateTime(doctor.getId(), slotStart);
 
@@ -65,12 +65,24 @@ public class AppointmentService {
             throw new BadRequestException("Il dottore ha già un appuntamento in questa fascia oraria");
         }
 
-        // 6) Creo l'appuntamento salvando lo slot normalizzato
+        //Audit
+        LocalDateTime now = LocalDateTime.now();
+        Integer duration = (request.getDurationMinutes() != null)
+                ? request.getDurationMinutes()
+                : 60; // default 60 min
+
+        //Creo l'appuntamento
         Appointment appointment = Appointment.builder()
                 .doctorId(doctor.getId())
                 .patientId(patient.getId())
                 .dateTime(slotStart)
                 .status(AppointmentStatus.BOOKED)
+                .reason(request.getReason())
+                .notes(request.getNotes())
+                .durationMinutes(duration)
+                .createdAt(now)
+                .updatedAt(now)
+                .createdBy("SYSTEM") //TODO Poi lo collego all'utente autenticato
                 .build();
 
         return appointmentRepository.save(appointment);
@@ -95,7 +107,30 @@ public class AppointmentService {
 
     public void cancel(String id) {
         Appointment appointment = findById(id);
+
+        if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
+            throw new BadRequestException("Un appuntamento completato non può essere annullato");
+        }
+        if (appointment.getStatus() == AppointmentStatus.CANCELED) {
+            throw new BadRequestException("L'appuntamento è già annullato");
+        }
+
         appointment.setStatus(AppointmentStatus.CANCELED);
+        appointment.setUpdatedAt(LocalDateTime.now());
+
+        appointmentRepository.save(appointment);
+    }
+
+    public void complete(String id) {
+        Appointment appointment = findById(id);
+
+        if (appointment.getStatus() != AppointmentStatus.BOOKED) {
+            throw new BadRequestException("Solo un appuntamento prenotato può essere completato");
+        }
+
+        appointment.setStatus(AppointmentStatus.COMPLETED);
+        appointment.setUpdatedAt(LocalDateTime.now());
+
         appointmentRepository.save(appointment);
     }
 

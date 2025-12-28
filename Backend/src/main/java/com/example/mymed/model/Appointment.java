@@ -21,11 +21,20 @@ public class Appointment {
     @Id
     private String id;
 
-    //riferimento Doctor e Patient
     private String doctorId;
     private String patientId;
 
+    // data/ora appuntamento
     private LocalDateTime dateTime;
 
+    // info di business
     private AppointmentStatus status;
+    private String reason;         // motivo visita (es. Controllo cardiologico)
+    private String notes;          // note libere
+    private Integer durationMinutes; // durata in minuti (es. 60)
+
+    // audit
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private String createdBy;      // TODO per ora stringa, poi la collego all'utente autenticato
 }

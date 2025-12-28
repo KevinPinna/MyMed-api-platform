@@ -12,6 +12,5 @@ public interface AppointmentRepository extends MongoRepository<Appointment, Stri
 
     List<Appointment> findByPatientId(String patientId);
 
-    // Controllo: esiste già un appuntamento per questo dottore a quest'ora esatta?
     boolean existsByDoctorIdAndDateTime(String doctorId, LocalDateTime dateTime);
 }

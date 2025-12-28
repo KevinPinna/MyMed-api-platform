@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/appointments")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin("http://localhost:5173")
 public class AppointmentController {
 
     private final AppointmentService service;
@@ -48,6 +48,12 @@ public class AppointmentController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void cancel(@PathVariable String id) {
         service.cancel(id);
+    }
+
+    @PatchMapping("/{id}/complete")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void complete(@PathVariable String id) {
+        service.complete(id);
     }
 
     @DeleteMapping("/{id}")
