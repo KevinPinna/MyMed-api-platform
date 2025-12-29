@@ -5,7 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage";
-import AdminLayout from "./layouts/AdminLayout";
+import AdminLayout from "./pages/admin/AdminLayout";
 import AppointmentsPage from "./pages/admin/AppointmentsPage";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import PatientDashboard from "./pages/PatientDashboard";

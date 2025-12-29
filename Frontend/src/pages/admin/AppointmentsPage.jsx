@@ -2,7 +2,8 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
-import { formatItalianDateTime } from "../../lib/date";
+import { formatDateTimeRome } from "../../lib/date";
+import { specializationToRoleIt } from "../../lib/labels";
 
 async function fetchAppointments() {
   const items = await api("/api/appointments");
@@ -12,10 +13,14 @@ async function fetchAppointments() {
       const doctor = await api(`/api/doctors/${a.doctorId}`);
       const patient = await api(`/api/patients/${a.patientId}`);
 
+      const doctorRole = specializationToRoleIt(doctor?.specialization);
+
       return {
         ...a,
-        doctorName: `${doctor.name} ${doctor.specialization}`,
-        patientName: `${patient.name} ${patient.surname}`,
+        doctorName: doctor?.name ? `${doctor.name} • ${doctorRole}` : a.doctorId,
+        patientName: patient
+          ? `${patient.name} ${patient.surname}`
+          : a.patientId,
       };
     })
   );
@@ -25,7 +30,7 @@ async function fetchAppointments() {
 
 export default function AppointmentsPage() {
   const {
-    data: appointments = [],     // 👈 default array vuoto
+    data: appointments = [],
     isLoading,
     isError,
     error,
@@ -35,8 +40,13 @@ export default function AppointmentsPage() {
     queryFn: fetchAppointments,
   });
 
-  async function updateStatus(id, status) {
-    await api(`/api/appointments/${id}/${status}`, { method: "PUT" });
+  async function updateStatus(id, action) {
+    // Se nel backend hai PATCH /{id}/cancel e PATCH /{id}/complete:
+    // await api(`/api/appointments/${id}/${action}`, { method: "PATCH" });
+
+    // Se invece hai davvero PUT /{id}/{status} lascia così:
+    await api(`/api/appointments/${id}/${action}`, { method: "PUT" });
+
     refetch();
   }
 
@@ -76,7 +86,7 @@ export default function AppointmentsPage() {
             <tr key={a.id} className="border-t">
               <td className="p-2">{a.doctorName}</td>
               <td className="p-2">{a.patientName}</td>
-              <td className="p-2">{formatItalianDateTime(a.dateTime)}</td>
+              <td className="p-2">{formatDateTimeRome(a.dateTime)}</td>
               <td className="p-2">{a.status}</td>
 
               <td className="p-2 flex gap-2">

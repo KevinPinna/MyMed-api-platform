@@ -8,6 +8,9 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 @Document("doctors")
 @Getter
 @Setter
@@ -20,7 +23,11 @@ public class Doctor {
     private String id;
 
     private String name;
-    private DoctorSpecialization specialization;
-    private DoctorAvailabilityDays availabilityDays;
-    private DoctorAvailabilityShift availabilityShift;
+
+    private String specialization;
+
+    @Builder.Default
+    private Set<String> availabilityDays = new LinkedHashSet<>();
+
+    private String availabilityShift;
 }

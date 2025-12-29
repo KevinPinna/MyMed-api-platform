@@ -1,8 +1,8 @@
 package com.example.mymed.controller;
 
+import com.example.mymed.dto.DoctorPatchRequest;
 import com.example.mymed.dto.DoctorRequest;
 import com.example.mymed.model.Doctor;
-import com.example.mymed.model.DoctorSpecialization;
 import com.example.mymed.service.DoctorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +23,7 @@ public class DoctorController {
     // Lista dottori (visibile a tutti gli autenticati)
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PATIENT')")
-    public List<Doctor> getAll(
-            @RequestParam(required = false) DoctorSpecialization specialization
-    ) {
+    public List<Doctor> getAll(@RequestParam(required = false) String specialization) {
         return doctorService.getAll(specialization);
     }
 
@@ -42,6 +40,13 @@ public class DoctorController {
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PATIENT')")
     public Doctor getById(@PathVariable String id) {
         return doctorService.getById(id);
+    }
+
+    // ✅ PATCH: modifica solo giorni/turno/specialization
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Doctor patch(@PathVariable String id, @RequestBody DoctorPatchRequest request) {
+        return doctorService.patch(id, request);
     }
 
     // Elimina dottore (solo admin)
