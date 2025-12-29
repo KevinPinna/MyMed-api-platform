@@ -19,7 +19,7 @@ public class PatientController {
 
     private final PatientService service;
 
-    // Crea paziente (es. segreteria / admin)
+    // Crea paziente
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")

@@ -1,6 +1,5 @@
 package com.example.mymed.dto;
 
-import com.example.mymed.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -11,18 +10,20 @@ import lombok.Setter;
 @Setter
 public class RegisterRequest {
 
-    @Email(message = "Email non valida")
-    @NotBlank(message = "L'email è obbligatoria")
+    @NotBlank(message = "La email è obbligatoria")
+    @Email(message = "Formato email non valido")
     private String email;
 
     @NotBlank(message = "La password è obbligatoria")
-    @Size(min = 6, max = 100, message = "La password deve avere tra 6 e 100 caratteri")
+    @Size(min = 8, message = "La password deve avere almeno 8 caratteri")
     private String password;
 
     @NotBlank(message = "Il ruolo è obbligatorio (ADMIN, DOCTOR, PATIENT)")
-    private String role;  // lo converto da enum Role
+    private String role;
 
-    // TODO li userò in futuro per legare utente a doctor/patient
+    //Se role = DOCTOR → obbligatorio
     private String doctorId;
+
+    //Se role = PATIENT → obbligatorio
     private String patientId;
 }
