@@ -20,5 +20,7 @@ public class Doctor {
     private String id;
 
     private String name;
-    private String specialization;
+    private DoctorSpecialization specialization;
+    private DoctorAvailabilityDays availabilityDays;
+    private DoctorAvailabilityShift availabilityShift;
 }
