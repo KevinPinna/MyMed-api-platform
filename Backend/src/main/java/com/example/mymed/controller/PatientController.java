@@ -13,13 +13,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/patients")
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class PatientController {
 
     private final PatientService service;
 
-    // Crea paziente
+    // Crea paziente (solo admin)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
@@ -41,7 +41,7 @@ public class PatientController {
         return service.findById(id);
     }
 
-    // Elimina paziente
+    // Elimina paziente (solo admin)
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")

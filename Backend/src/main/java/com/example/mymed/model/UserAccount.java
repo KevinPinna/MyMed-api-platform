@@ -30,21 +30,21 @@ public class UserAccount implements UserDetails {
     private String password;
     private Role role;
 
-    // campi "di dominio" (per collegarli dopo a doctor/patient)
-    private String doctorId;   // opzionale, se l'utente è un dottore
-    private String patientId;  // opzionale, se l'utente è un paziente
+    // collegamenti agli attori di dominio
+    private String doctorId;
+    private String patientId;
+    private String adminId;
 
     private LocalDateTime createdAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // es: ROLE_ADMIN, ROLE_DOCTOR, ROLE_PATIENT
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
     public String getUsername() {
-        return email;  // usiamo la mail come username
+        return email;
     }
 
     @Override

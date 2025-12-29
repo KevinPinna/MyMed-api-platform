@@ -10,5 +10,6 @@ public enum DoctorSpecialization {
     PEDIATRICS,
     PSYCHIATRY,
     RADIOLOGY,
-    GENERAL_PRACTICE
+    GENERAL_PRACTICE,
+    Chirurgo
 }

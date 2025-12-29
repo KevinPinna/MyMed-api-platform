@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/doctors")
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class DoctorController {
 
@@ -23,7 +23,9 @@ public class DoctorController {
     // Lista dottori (visibile a tutti gli autenticati)
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PATIENT')")
-    public List<Doctor> getAll(@RequestParam(required = false) DoctorSpecialization specialization) {
+    public List<Doctor> getAll(
+            @RequestParam(required = false) DoctorSpecialization specialization
+    ) {
         return doctorService.getAll(specialization);
     }
 
