@@ -1,12 +1,3 @@
-// src/lib/labels.js
-
-/**
- * Nel DB/BE la specialization resta in ENUM (CARDIOLOGY, ecc.)
- * Qui gestiamo SOLO le etichette ITA per UI:
- * - reparto (Cardiologia)
- * - specializzazione/ruolo (Cardiologo)
- */
-
 export const SPECIALIZATION_META = {
   CARDIOLOGY: { dept: "Cardiologia", role: "Cardiologo" },
   DERMATOLOGY: { dept: "Dermatologia", role: "Dermatologo" },
@@ -30,10 +21,6 @@ export function specializationToDeptIt(specCode) {
   return SPECIALIZATION_META[specCode]?.dept || specCode;
 }
 
-/**
- * Lista pronta per <select> reparto.
- * value = enum BE (CARDIOLOGY...), label = reparto ITA
- */
 export const DEPARTMENT_OPTIONS = Object.entries(SPECIALIZATION_META).map(
   ([value, meta]) => ({
     value,
@@ -42,7 +29,7 @@ export const DEPARTMENT_OPTIONS = Object.entries(SPECIALIZATION_META).map(
   })
 );
 
-// Giorni / turni (se ti serve riutilizzarli ovunque)
+// Giorni / turni 
 export const DAY_LABEL_IT = {
   MONDAY: "Lunedì",
   TUESDAY: "Martedì",

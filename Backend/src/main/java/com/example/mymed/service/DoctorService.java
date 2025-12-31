@@ -29,12 +29,11 @@ public class DoctorService {
         if (specialization == null || specialization.isBlank()) {
             list = doctorRepository.findAll();
         } else {
-            // normalizzo (accetta anche valori "italiani" o casing diverso)
+            // normalizzo
             String specCode = DoctorMapper.normalizeSpecializationCode(specialization);
             list = doctorRepository.findBySpecialization(specCode);
         }
 
-        // normalizza vecchi valori italiani per non spaccare il frontend
         list.forEach(d ->
                 d.setSpecialization(DoctorMapper.normalizeSpecializationCode(d.getSpecialization()))
         );
@@ -49,9 +48,6 @@ public class DoctorService {
         doctor.setSpecialization(
                 DoctorMapper.normalizeSpecializationCode(doctor.getSpecialization())
         );
-
-        // se availabilityDays è Set<String> nel model, non tocco qui (dipende dal mapper)
-        // se ti arrivano già stringhe, ok.
 
         return doctorRepository.save(doctor);
     }
@@ -75,7 +71,7 @@ public class DoctorService {
         }
 
         if (request.getAvailabilityDays() != null) {
-            // normalizzo giorni -> UPPERCASE, senza spazi
+            //giorni -> UPPERCASE, senza spazi
             Set<String> normalizedDays = request.getAvailabilityDays().stream()
                     .filter(Objects::nonNull)
                     .map(String::trim)
@@ -92,7 +88,7 @@ public class DoctorService {
 
         Doctor saved = doctorRepository.save(doctor);
 
-        // normalizza output
+        //output
         saved.setSpecialization(DoctorMapper.normalizeSpecializationCode(saved.getSpecialization()));
         return saved;
     }

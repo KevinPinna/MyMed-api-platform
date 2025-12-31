@@ -1,6 +1,5 @@
 // src/context/AuthContext.jsx
-import React from "react";
-import { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { api } from "../lib/api";
 
 const AuthContext = createContext(null);
@@ -36,8 +35,23 @@ export function AuthProvider({ children }) {
     setToken(newToken);
     setUser(newUser);
 
+    // 👉 Salvo tutto nel localStorage
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
+
+    // 👉 Salvo anche doctorId e patientId come chiavi singole,
+    // perché la dashboard del dottore li legge così
+    if (newUser.doctorId) {
+      localStorage.setItem("doctorId", newUser.doctorId);
+    } else {
+      localStorage.removeItem("doctorId");
+    }
+
+    if (newUser.patientId) {
+      localStorage.setItem("patientId", newUser.patientId);
+    } else {
+      localStorage.removeItem("patientId");
+    }
 
     return newUser;
   }
@@ -45,8 +59,11 @@ export function AuthProvider({ children }) {
   function logout() {
     setToken(null);
     setUser(null);
+
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("doctorId");
+    localStorage.removeItem("patientId");
   }
 
   const value = {
@@ -59,7 +76,9 @@ export function AuthProvider({ children }) {
     isPatient: user?.role === "PATIENT",
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  );
 }
 
 export function useAuth() {

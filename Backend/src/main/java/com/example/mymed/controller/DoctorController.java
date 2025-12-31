@@ -42,7 +42,7 @@ public class DoctorController {
         return doctorService.getById(id);
     }
 
-    // ✅ PATCH: modifica solo giorni/turno/specialization
+    //PATCH modifica solo giorni/turno/specialization
     @PatchMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public Doctor patch(@PathVariable String id, @RequestBody DoctorPatchRequest request) {

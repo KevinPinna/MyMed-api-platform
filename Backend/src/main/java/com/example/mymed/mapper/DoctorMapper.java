@@ -27,10 +27,6 @@ public class DoctorMapper {
                 .build();
     }
 
-    /**
-     * Normalizza eventuali valori vecchi salvati in ITA (es "Cardiologo"/"Cardiologia")
-     * in un codice standard (es "CARDIOLOGY").
-     */
     public static String normalizeSpecializationCode(String value) {
         if (value == null) return null;
         String raw = value.trim();

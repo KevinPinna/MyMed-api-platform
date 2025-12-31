@@ -1,4 +1,3 @@
-// src/pages/admin/AdminHistoryPage.jsx
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
@@ -55,7 +54,7 @@ export default function AdminHistoryPage() {
     );
   }
 
-  // Creiamo delle mappe id → oggetto per accesso rapido
+  // Crea delle mappe id → oggetto per accesso rapido
   const doctorById = new Map();
   doctors?.forEach((d) => {
     doctorById.set(d.id, d);
@@ -93,7 +92,7 @@ export default function AdminHistoryPage() {
                 const patient = patientById.get(appt.patientId);
 
                 const doctorName = doctor
-                  ? doctor.name // tu hai già messo nome+cognome in name
+                  ? doctor.name
                   : appt.doctorId; // fallback
 
                 const patientName = patient

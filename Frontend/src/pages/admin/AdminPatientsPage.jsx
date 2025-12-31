@@ -1,4 +1,3 @@
-// src/pages/admin/AdminPatientsPage.jsx
 import React from "react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -44,7 +43,6 @@ export default function AdminPatientsPage() {
                   onClick={() => setSelectedPatient(p)}
                   className="w-full text-left px-4 py-2 hover:bg-slate-100 text-sm"
                 >
-                  {/* ADATTA se hai firstName/lastName */}
                   <div className="font-medium">{p.name} {p.surname}</div>
                   {p.email && (
                     <div className="text-xs text-slate-500">
@@ -86,7 +84,7 @@ function PatientHistoryPanel({ patient }) {
     enabled: !!id,
   });
 
-  // per i nomi dei dottori
+  //Prende il nome dei dottori
   const {
     data: doctors,
     isLoading: loadingDoctors,

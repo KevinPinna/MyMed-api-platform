@@ -117,7 +117,7 @@ public class AppointmentService {
                 .durationMinutes(duration)
                 .createdAt(now)
                 .updatedAt(now)
-                .createdBy(current.getEmail()) // ora salviamo chi l'ha creato
+                .createdBy(current.getEmail())
                 .build();
 
         return appointmentRepository.save(appointment);
@@ -189,7 +189,7 @@ public class AppointmentService {
             return appointmentRepository.findByPatientId(patientId);
         }
 
-        // PATIENT ignora il path param e usa il proprio patientId
+        // PATIENT usa il proprio patientId
         if (currentUserService.isPatient()) {
             String currentPatientId = current.getPatientId();
             if (currentPatientId == null) {
@@ -202,7 +202,7 @@ public class AppointmentService {
     }
 
     public void cancel(String id) {
-        Appointment appointment = findById(id); // qui dentro fa già i controlli di ruolo/owner
+        Appointment appointment = findById(id);
 
         if (appointment.getStatus() == AppointmentStatus.COMPLETED) {
             throw new BadRequestException("Un appuntamento completato non può essere annullato");
@@ -218,8 +218,8 @@ public class AppointmentService {
     }
 
     public void complete(String id) {
-        // Solo ADMIN e DOCTOR arrivano qui (da @PreAuthorize sul controller),
-        // ma usiamo comunque findById per garantire che il dottore non tocchi appuntamenti altrui
+        // Solo ADMIN e DOCTOR arrivano qui
+        // ma uso comunque findById per garantire che il dottore non tocchi appuntamenti altrui
         Appointment appointment = findById(id);
 
         if (appointment.getStatus() != AppointmentStatus.BOOKED) {
@@ -237,7 +237,6 @@ public class AppointmentService {
             throw new ResourceNotFoundException("Appuntamento non trovato con id: " + id);
         }
 
-        // lato security: DELETE è già limitato a ADMIN nel controller, quindi non servono altri controlli
         appointmentRepository.deleteById(id);
     }
 }

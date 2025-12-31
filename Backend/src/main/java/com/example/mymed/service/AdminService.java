@@ -30,9 +30,7 @@ public class AdminService {
                 .orElseThrow(() -> new ResourceNotFoundException("Admin non trovato con id: " + id));
     }
 
-    /**
-     * Crea un nuovo Admin e lo collega all'utente con stessa email e ruolo ADMIN (se esiste).
-     */
+    //Crea un nuovo Admin e lo collega all'utente con stessa email e ruolo ADMIN (se esiste).
     public Admin create(AdminRequest request) {
 
         if (adminRepository.existsByEmail(request.getEmail())) {

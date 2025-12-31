@@ -1,4 +1,3 @@
-// src/pages/admin/AdminDepartmentsPage.jsx
 import React from "react";
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -125,7 +124,7 @@ export default function AdminDepartments() {
                       </button>
 
                       <div className="flex items-center gap-3">
-                        {/*MODIFICA */}
+                        {/* MODIFICA */}
                         <button
                           onClick={() => setEditingDoctor(doc)}
                           className="text-xs text-indigo-700 hover:underline"
@@ -193,7 +192,7 @@ export default function AdminDepartments() {
 function DoctorDetailPanel({ doctor, onEdit }) {
   const { id, name, specialization, availabilityDays, availabilityShift } = doctor || {};
 
-  // appuntamenti del dottore
+  //appuntamenti del dottore
   const {
     data: appointments,
     isLoading: loadingAppointments,
@@ -204,7 +203,7 @@ function DoctorDetailPanel({ doctor, onEdit }) {
     enabled: !!id,
   });
 
-  // pazienti per risalire al nome dal patientId
+  //funzione per risalire al nome dal patientId
   const {
     data: patients,
     isLoading: loadingPatients,

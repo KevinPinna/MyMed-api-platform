@@ -106,7 +106,7 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        //autentico credenziali (se fallisce → eccezione 401 gestita da Spring Security)
+        //autentico credenziali
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),

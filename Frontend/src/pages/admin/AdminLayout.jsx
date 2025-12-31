@@ -1,4 +1,3 @@
-// src/pages/admin/AdminLayout.jsx
 import React from "react";
 import { NavLink, Routes, Route, useNavigate } from "react-router-dom";
 import AdminAppointmentsPage from "./AppointmentsPage";

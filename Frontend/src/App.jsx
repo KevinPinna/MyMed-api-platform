@@ -1,4 +1,3 @@
-// src/App.jsx
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
@@ -9,6 +8,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AppointmentsPage from "./pages/admin/AppointmentsPage";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import PatientDashboard from "./pages/PatientDashboard";
+import VisitReportPage from "./pages/doctor/VisitReportPage";
 
 export default function App() {
   return (
@@ -21,7 +21,7 @@ export default function App() {
           {/* Redirect root -> login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 
-          {/* Area Admin con layout + sotto-pagine */}
+          {/* Area Admin */}
           <Route
             path="/admin"
             element={
@@ -62,6 +62,12 @@ export default function App() {
             }
           />
 
+          {/* referto stampabile (admin e doctor possono aprirla) */}
+          <Route
+            path="/reports/appointment/:appointmentId"
+            element={<VisitReportPage />}
+          />
+
           {/* Area Paziente */}
           <Route
             path="/patient"
@@ -80,6 +86,8 @@ export default function App() {
 
           {/* Qualsiasi altra route -> login */}
           <Route path="*" element={<Navigate to="/login" replace />} />
+
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -34,5 +34,5 @@ public class AppointmentRequest {
 
     @Min(value = 15, message = "La durata minima è 15 minuti")
     @Max(value = 60, message = "La durata massima è 60 minuti")
-    private Integer durationMinutes;  //Se null metto default nel service
+    private Integer durationMinutes;  //Se null mette default nel service
 }

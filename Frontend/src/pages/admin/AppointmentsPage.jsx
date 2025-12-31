@@ -1,4 +1,3 @@
-// src/pages/admin/AppointmentsPage.jsx
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
@@ -41,10 +40,6 @@ export default function AppointmentsPage() {
   });
 
   async function updateStatus(id, action) {
-    // Se nel backend hai PATCH /{id}/cancel e PATCH /{id}/complete:
-    // await api(`/api/appointments/${id}/${action}`, { method: "PATCH" });
-
-    // Se invece hai davvero PUT /{id}/{status} lascia così:
     await api(`/api/appointments/${id}/${action}`, { method: "PUT" });
 
     refetch();

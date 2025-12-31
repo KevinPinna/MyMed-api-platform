@@ -23,13 +23,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     /**
-     * Qui decidiamo per quali path il filtro NON deve essere applicato.
+     * Qui si decide per quali path il filtro NON deve essere applicato.
      * Register / login devono essere liberi dal controllo JWT.
      */
+
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return path.startsWith("/api/auth");  // /api/auth/** → niente controllo token
+        return path.startsWith("/api/auth");
     }
 
     @Override
