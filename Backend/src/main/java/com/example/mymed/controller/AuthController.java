@@ -1,7 +1,9 @@
+// src/main/java/com/example/mymed/controller/AuthController.java
 package com.example.mymed.controller;
 
 import com.example.mymed.dto.AuthResponse;
 import com.example.mymed.dto.LoginRequest;
+import com.example.mymed.dto.PatientSelfRegisterRequest;
 import com.example.mymed.dto.RegisterRequest;
 import com.example.mymed.service.AuthService;
 import jakarta.validation.Valid;
@@ -17,10 +19,18 @@ public class AuthController {
 
     private final AuthService authService;
 
+    // Usato dall'admin per creare utenti (ADMIN/DOCTOR/PATIENT)
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
+    }
+
+    // Self-registration paziente da frontend pubblico
+    @PostMapping("/register/patient")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthResponse registerPatient(@Valid @RequestBody PatientSelfRegisterRequest request) {
+        return authService.registerPatient(request);
     }
 
     @PostMapping("/login")

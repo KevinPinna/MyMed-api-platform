@@ -29,7 +29,6 @@ export const DEPARTMENT_OPTIONS = Object.entries(SPECIALIZATION_META).map(
   })
 );
 
-// Giorni / turni 
 export const DAY_LABEL_IT = {
   MONDAY: "Lunedì",
   TUESDAY: "Martedì",

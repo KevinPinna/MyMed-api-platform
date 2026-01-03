@@ -16,8 +16,9 @@ import java.util.List;
 public class VisitReportService {
 
     private final VisitReportRepository visitReportRepository;
+    private final AppointmentService appointmentService;
 
-    //Crea o aggiorna il referto per un dato appuntamento.
+    // Crea o aggiorna il referto per un dato appuntamento.
     public VisitReport createOrUpdate(VisitReportRequest request) {
         VisitReport report = visitReportRepository
                 .findByAppointmentId(request.getAppointmentId())
@@ -35,7 +36,16 @@ public class VisitReportService {
         }
         report.setUpdatedAt(LocalDateTime.now());
 
-        return visitReportRepository.save(report);
+        VisitReport saved = visitReportRepository.save(report);
+
+        //Quando il dottore compila il referto completa anche l'appuntamento
+        try {
+            appointmentService.complete(request.getAppointmentId());
+        } catch (Exception ignored) {
+            // se non è possibile completare
+        }
+
+        return saved;
     }
 
     public VisitReport getByAppointment(String appointmentId) {
@@ -52,8 +62,7 @@ public class VisitReportService {
                 ));
     }
 
-
-    //Ricerca referti:
+    // Ricerca referti:
     public List<VisitReport> search(String doctorId, String patientId) {
         if (doctorId != null && !doctorId.isBlank()
                 && patientId != null && !patientId.isBlank()) {
@@ -68,8 +77,7 @@ public class VisitReportService {
         if (doctorId != null && !doctorId.isBlank()) {
             return visitReportRepository.findByDoctorIdOrderByCreatedAtDesc(doctorId);
         }
-
-        // fallback: tutti
+        
         return visitReportRepository.findAll();
     }
 }

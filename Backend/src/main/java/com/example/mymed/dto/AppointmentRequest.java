@@ -26,7 +26,6 @@ public class AppointmentRequest {
     private LocalDateTime dateTime;
 
     @NotBlank(message = "Il motivo della visita è obbligatorio")
-    @Size(min = 5, max = 200, message = "Il motivo deve avere tra 5 e 200 caratteri")
     private String reason;
 
     @Size(max = 500, message = "Le note possono avere al massimo 500 caratteri")

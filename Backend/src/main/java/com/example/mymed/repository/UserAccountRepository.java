@@ -10,4 +10,6 @@ public interface UserAccountRepository extends MongoRepository<UserAccount, Stri
     Optional<UserAccount> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    Optional<UserAccount> findByPatientId(String patientId);
 }

@@ -44,7 +44,7 @@ public class DoctorController {
 
     //PATCH modifica solo giorni/turno/specialization
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     public Doctor patch(@PathVariable String id, @RequestBody DoctorPatchRequest request) {
         return doctorService.patch(id, request);
     }

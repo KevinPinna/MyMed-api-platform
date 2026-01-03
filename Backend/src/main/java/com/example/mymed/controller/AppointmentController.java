@@ -1,6 +1,8 @@
+// src/main/java/com/example/mymed/controller/AppointmentController.java
 package com.example.mymed.controller;
 
 import com.example.mymed.dto.AppointmentRequest;
+import com.example.mymed.dto.AppointmentRescheduleRequest;
 import com.example.mymed.model.Appointment;
 import com.example.mymed.service.AppointmentService;
 import jakarta.validation.Valid;
@@ -43,7 +45,7 @@ public class AppointmentController {
 
     // Appuntamenti per dottore
     @GetMapping("/doctor/{doctorId}")
-    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PATIENT')")
     public List<Appointment> getByDoctor(@PathVariable String doctorId) {
         return service.findByDoctor(doctorId);
     }
@@ -69,6 +71,53 @@ public class AppointmentController {
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR')")
     public void complete(@PathVariable String id) {
         service.complete(id);
+    }
+
+    //accettazione da parte del dottore
+    @PatchMapping("/{id}/doctor-accept")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public Appointment doctorAccept(@PathVariable String id) {
+        return service.doctorAccept(id);
+    }
+
+    //Riprogrammazione dal dottore
+    @PatchMapping("/{id}/doctor-reschedule")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public Appointment doctorReschedule(
+            @PathVariable String id,
+            @Valid @RequestBody AppointmentRescheduleRequest request
+    ) {
+        return service.doctorReschedule(id, request.getDateTime());
+    }
+
+    //patient-accept
+    @PatchMapping("/{id}/patient-accept")
+    @PreAuthorize("hasRole('PATIENT')")
+    public Appointment patientAccept(@PathVariable String id) {
+        return service.patientAcceptReschedule(id);
+    }
+
+    //patient-confirm
+    @PatchMapping("/{id}/patient-confirm")
+    @PreAuthorize("hasRole('PATIENT')")
+    public Appointment patientConfirm(@PathVariable String id) {
+        return service.patientAcceptReschedule(id);
+    }
+
+    // Rifiuto nuova data/ora
+    @PatchMapping("/{id}/patient-reject")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('PATIENT')")
+    public void patientReject(@PathVariable String id) {
+        service.patientRejectReschedule(id);
+    }
+
+    // Alias eventuale
+    @PatchMapping("/{id}/patient-decline")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('PATIENT')")
+    public void patientDecline(@PathVariable String id) {
+        service.patientRejectReschedule(id);
     }
 
     // Cancella definitivamente

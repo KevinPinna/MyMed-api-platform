@@ -8,16 +8,24 @@ import com.example.mymed.model.Doctor;
 import com.example.mymed.repository.DoctorRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class DoctorService {
 
     private final DoctorRepository doctorRepository;
+
+    // ordine canonico dei giorni
+    private static final List<String> DAY_ORDER = List.of(
+            "MONDAY",
+            "TUESDAY",
+            "WEDNESDAY",
+            "THURSDAY",
+            "FRIDAY",
+            "SATURDAY",
+            "SUNDAY"
+    );
 
     public DoctorService(DoctorRepository doctorRepository) {
         this.doctorRepository = doctorRepository;
@@ -29,14 +37,19 @@ public class DoctorService {
         if (specialization == null || specialization.isBlank()) {
             list = doctorRepository.findAll();
         } else {
-            // normalizzo
             String specCode = DoctorMapper.normalizeSpecializationCode(specialization);
             list = doctorRepository.findBySpecialization(specCode);
         }
 
-        list.forEach(d ->
-                d.setSpecialization(DoctorMapper.normalizeSpecializationCode(d.getSpecialization()))
-        );
+        // normalizzo specializzazione e ordino i giorni, se presenti
+        list.forEach(d -> {
+            d.setSpecialization(
+                    DoctorMapper.normalizeSpecializationCode(d.getSpecialization())
+            );
+            if (d.getAvailabilityDays() != null && !d.getAvailabilityDays().isEmpty()) {
+                d.setAvailabilityDays(sortAvailabilityDays(d.getAvailabilityDays()));
+            }
+        });
 
         return list;
     }
@@ -44,10 +57,15 @@ public class DoctorService {
     public Doctor create(DoctorRequest request) {
         Doctor doctor = DoctorMapper.toEntity(request);
 
-        // specialization nel model è String -> normalizzo
+        // normalizzo specializzazione
         doctor.setSpecialization(
                 DoctorMapper.normalizeSpecializationCode(doctor.getSpecialization())
         );
+
+        // se arrivano già dei giorni, li normalizzo e ordino
+        if (doctor.getAvailabilityDays() != null && !doctor.getAvailabilityDays().isEmpty()) {
+            doctor.setAvailabilityDays(sortAvailabilityDays(doctor.getAvailabilityDays()));
+        }
 
         return doctorRepository.save(doctor);
     }
@@ -57,6 +75,11 @@ public class DoctorService {
                 .orElseThrow(() -> new ResourceNotFoundException("Dottore non trovato con id: " + id));
 
         d.setSpecialization(DoctorMapper.normalizeSpecializationCode(d.getSpecialization()));
+
+        if (d.getAvailabilityDays() != null && !d.getAvailabilityDays().isEmpty()) {
+            d.setAvailabilityDays(sortAvailabilityDays(d.getAvailabilityDays()));
+        }
+
         return d;
     }
 
@@ -64,32 +87,33 @@ public class DoctorService {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Dottore non trovato con id: " + id));
 
+        // specializzazione
         if (request.getSpecialization() != null && !request.getSpecialization().isBlank()) {
             doctor.setSpecialization(
                     DoctorMapper.normalizeSpecializationCode(request.getSpecialization())
             );
         }
 
+        // giorni di disponibilità
         if (request.getAvailabilityDays() != null) {
-            //giorni -> UPPERCASE, senza spazi
-            Set<String> normalizedDays = request.getAvailabilityDays().stream()
-                    .filter(Objects::nonNull)
-                    .map(String::trim)
-                    .filter(s -> !s.isBlank())
-                    .map(s -> s.toUpperCase(Locale.ROOT))
-                    .collect(Collectors.toSet());
-
-            doctor.setAvailabilityDays(normalizedDays);
+            doctor.setAvailabilityDays(sortAvailabilityDays(request.getAvailabilityDays()));
         }
 
+        // turno (MORNING / AFTERNOON / FULL_DAY )
         if (request.getAvailabilityShift() != null && !request.getAvailabilityShift().isBlank()) {
             doctor.setAvailabilityShift(request.getAvailabilityShift().trim().toUpperCase(Locale.ROOT));
         }
 
         Doctor saved = doctorRepository.save(doctor);
 
-        //output
-        saved.setSpecialization(DoctorMapper.normalizeSpecializationCode(saved.getSpecialization()));
+        // normalizzo output
+        saved.setSpecialization(
+                DoctorMapper.normalizeSpecializationCode(saved.getSpecialization())
+        );
+        if (saved.getAvailabilityDays() != null && !saved.getAvailabilityDays().isEmpty()) {
+            saved.setAvailabilityDays(sortAvailabilityDays(saved.getAvailabilityDays()));
+        }
+
         return saved;
     }
 
@@ -98,5 +122,22 @@ public class DoctorService {
             throw new ResourceNotFoundException("Dottore non trovato con id: " + id);
         }
         doctorRepository.deleteById(id);
+    }
+
+    private LinkedHashSet<String> sortAvailabilityDays(Collection<String> days) {
+        if (days == null) {
+            return null;
+        }
+
+        return days.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .map(s -> s.toUpperCase(Locale.ROOT))
+                .sorted(Comparator.comparingInt(d -> {
+                    int idx = DAY_ORDER.indexOf(d);
+                    return idx == -1 ? Integer.MAX_VALUE : idx; // giorni non validi in coda
+                }))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

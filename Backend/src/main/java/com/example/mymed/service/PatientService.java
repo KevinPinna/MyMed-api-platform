@@ -1,3 +1,4 @@
+// src/main/java/com/example/mymed/service/PatientService.java
 package com.example.mymed.service;
 
 import com.example.mymed.dto.PatientRequest;
@@ -16,13 +17,14 @@ public class PatientService {
     private final PatientRepository repository;
 
     public Patient create(PatientRequest request) {
-        Patient patient = new Patient(
-                null,
-                request.getName(),
-                request.getSurname(),
-                request.getEmail(),
-                request.getPhone()
-        );
+        Patient patient = Patient.builder()
+                .id(null)
+                .name(request.getName())
+                .surname(request.getSurname())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .fiscalCode(request.getFiscalCode())
+                .build();
 
         return repository.save(patient);
     }

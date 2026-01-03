@@ -1,7 +1,9 @@
+// src/main/java/com/example/mymed/service/AuthService.java
 package com.example.mymed.service;
 
 import com.example.mymed.dto.AuthResponse;
 import com.example.mymed.dto.LoginRequest;
+import com.example.mymed.dto.PatientSelfRegisterRequest;
 import com.example.mymed.dto.RegisterRequest;
 import com.example.mymed.exception.BadRequestException;
 import com.example.mymed.exception.ResourceNotFoundException;
@@ -35,12 +37,10 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        //email unica
         if (userAccountRepository.existsByEmail(request.getEmail())) {
             throw new BadRequestException("Email già registrata");
         }
 
-        //converto stringa in enum Role
         Role role;
         try {
             role = Role.valueOf(request.getRole().toUpperCase());
@@ -48,7 +48,6 @@ public class AuthService {
             throw new BadRequestException("Ruolo non valido. Valori ammessi: ADMIN, DOCTOR, PATIENT");
         }
 
-        //regole di consistenza tra ruolo e doctorId/patientId
         if (role == Role.DOCTOR && (request.getDoctorId() == null || request.getDoctorId().isBlank())) {
             throw new BadRequestException("Per creare un utente DOCTOR è obbligatorio indicare doctorId");
         }
@@ -62,7 +61,6 @@ public class AuthService {
         String doctorId = null;
         String patientId = null;
 
-        //se è un DOCTOR → verifico che il dottore esista e salvo l'id
         if (role == Role.DOCTOR) {
             Doctor doctor = doctorRepository.findById(request.getDoctorId())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -71,7 +69,6 @@ public class AuthService {
             doctorId = doctor.getId();
         }
 
-        //se è un PATIENT → verifico che il paziente esista e salvo l'id
         if (role == Role.PATIENT) {
             Patient patient = patientRepository.findById(request.getPatientId())
                     .orElseThrow(() -> new ResourceNotFoundException(
@@ -80,7 +77,6 @@ public class AuthService {
             patientId = patient.getId();
         }
 
-        //creo l'utente applicativo
         UserAccount user = UserAccount.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -92,10 +88,61 @@ public class AuthService {
 
         userAccountRepository.save(user);
 
-        //genero JWT
         String token = jwtService.generateToken(user);
 
-        //risposta con info di collegamento
+        return AuthResponse.builder()
+                .token(token)
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .doctorId(user.getDoctorId())
+                .patientId(user.getPatientId())
+                .build();
+    }
+
+    @Transactional
+    public AuthResponse registerPatient(PatientSelfRegisterRequest request) {
+        // controllo password = conferma password
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
+            throw new BadRequestException("Le password non coincidono");
+        }
+
+        // email non deve esistere come utente
+        if (userAccountRepository.existsByEmail(request.getEmail())) {
+            throw new BadRequestException("Email già registrata");
+        }
+
+        // email non deve esistere come paziente
+        patientRepository.findByEmail(request.getEmail()).ifPresent(p -> {
+            throw new BadRequestException("Esiste già un paziente con questa email");
+        });
+
+        // creo il paziente di dominio
+        Patient patient = Patient.builder()
+                .name(request.getName())
+                .surname(request.getSurname())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .fiscalCode(request.getFiscalCode())
+                .build();
+
+        patient = patientRepository.save(patient);
+
+        // creo l'utente applicativo con ruolo PATIENT
+        UserAccount user = UserAccount.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.PATIENT)
+                .doctorId(null)
+                .patientId(patient.getId())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        userAccountRepository.save(user);
+
+        // genero token JWT
+        String token = jwtService.generateToken(user);
+
+        // ritorno info per frontend (auto-login)
         return AuthResponse.builder()
                 .token(token)
                 .email(user.getEmail())
@@ -106,7 +153,6 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
-        //autentico credenziali
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -114,16 +160,13 @@ public class AuthService {
                 )
         );
 
-        //recupero l'utente dal DB
         UserAccount user = userAccountRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Utente non trovato con email: " + request.getEmail()
                 ));
 
-        //genero nuovo JWT
         String token = jwtService.generateToken(user);
 
-        //ritorno anche doctorId/patientId
         return AuthResponse.builder()
                 .token(token)
                 .email(user.getEmail())

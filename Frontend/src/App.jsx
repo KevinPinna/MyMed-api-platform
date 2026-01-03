@@ -6,9 +6,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AppointmentsPage from "./pages/admin/AppointmentsPage";
-import DoctorDashboard from "./pages/DoctorDashboard";
-import PatientDashboard from "./pages/PatientDashboard";
+import DoctorDashboard from "./pages/doctor/DoctorDashboard";
+import PatientDashboard from "./pages/patient/PatientDashboard";
 import VisitReportPage from "./pages/doctor/VisitReportPage";
+import PatientRegisterPage from "./pages/PatientRegisterPage";
 
 export default function App() {
   return (
@@ -79,10 +80,7 @@ export default function App() {
           />
 
           {/* Placeholder registrazione */}
-          <Route
-            path="/register"
-            element={<div>Registrazione (da definire)</div>}
-          />
+          <Route path="/register" element={<PatientRegisterPage />} />
 
           {/* Qualsiasi altra route -> login */}
           <Route path="*" element={<Navigate to="/login" replace />} />

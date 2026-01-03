@@ -16,6 +16,7 @@ export function AuthProvider({ children }) {
     return savedUser ? JSON.parse(savedUser) : null;
   });
 
+  // Login generico
   async function login(email, password) {
     const data = await api("/api/auth/login", {
       method: "POST",
@@ -35,23 +36,34 @@ export function AuthProvider({ children }) {
     setToken(newToken);
     setUser(newUser);
 
-    // 👉 Salvo tutto nel localStorage
     localStorage.setItem("token", newToken);
     localStorage.setItem("user", JSON.stringify(newUser));
 
-    // 👉 Salvo anche doctorId e patientId come chiavi singole,
-    // perché la dashboard del dottore li legge così
-    if (newUser.doctorId) {
-      localStorage.setItem("doctorId", newUser.doctorId);
-    } else {
-      localStorage.removeItem("doctorId");
-    }
+    return newUser;
+  }
 
-    if (newUser.patientId) {
-      localStorage.setItem("patientId", newUser.patientId);
-    } else {
-      localStorage.removeItem("patientId");
-    }
+  // Self-registration paziente + auto-login
+  async function registerPatient(payload) {
+    const data = await api("/api/auth/register/patient", {
+      method: "POST",
+      body: payload,
+      auth: false,
+    });
+
+    const newToken = data.token;
+
+    const newUser = {
+      email: data.email,
+      role: data.role,
+      doctorId: data.doctorId,
+      patientId: data.patientId,
+    };
+
+    setToken(newToken);
+    setUser(newUser);
+
+    localStorage.setItem("token", newToken);
+    localStorage.setItem("user", JSON.stringify(newUser));
 
     return newUser;
   }
@@ -59,11 +71,8 @@ export function AuthProvider({ children }) {
   function logout() {
     setToken(null);
     setUser(null);
-
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    localStorage.removeItem("doctorId");
-    localStorage.removeItem("patientId");
   }
 
   const value = {
@@ -71,14 +80,13 @@ export function AuthProvider({ children }) {
     token,
     login,
     logout,
+    registerPatient,
     isAdmin: user?.role === "ADMIN",
     isDoctor: user?.role === "DOCTOR",
     isPatient: user?.role === "PATIENT",
   };
 
-  return (
-    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
