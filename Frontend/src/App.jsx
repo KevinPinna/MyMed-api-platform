@@ -4,8 +4,8 @@ import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import LoginPage from "./pages/LoginPage";
-import AdminLayout from "./pages/admin/AdminLayout";
-import AppointmentsPage from "./pages/admin/AppointmentsPage";
+import AdminLayout from "./pages/admin/AdminDashboard";
+import AdminAppointmentsPage from "./pages/admin/components/AdminAppointmentsPage";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 import PatientDashboard from "./pages/patient/PatientDashboard";
 import VisitReportPage from "./pages/doctor/VisitReportPage";
@@ -24,7 +24,7 @@ export default function App() {
 
           {/* Area Admin */}
           <Route
-            path="/admin"
+            path="/admin/*"
             element={
               <ProtectedRoute roles={["ADMIN"]}>
                 <AdminLayout />
@@ -32,7 +32,7 @@ export default function App() {
             }
           >
             {/* /admin */}
-            <Route index element={<AppointmentsPage />} />
+            <Route index element={<AdminAppointmentsPage />} />
 
             {/* /admin/departments */}
             <Route

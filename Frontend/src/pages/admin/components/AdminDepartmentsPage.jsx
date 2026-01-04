@@ -1,8 +1,7 @@
-import React from "react";
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "../../lib/api";
-import { formatDateTimeRome } from "../../lib/date";
+import { api } from "../../../lib/api";
+import { formatDateTimeRome } from "../../../lib/date";
 import {
   specializationToDeptIt,
   specializationToRoleIt,
@@ -11,9 +10,17 @@ import {
   shiftToItalian,
   DAY_LABEL_IT,
   SHIFT_LABEL_IT,
-} from "../../lib/labels";
+} from "../../../lib/labels";
 
-export default function AdminDepartments() {
+const STATUS_LABELS_IT = {
+  SENDED: "Richiesta paziente",
+  BOOKED: "Prenotato",
+  COMPLETED: "Completato",
+  CANCELED: "Annullato",
+  PENDING_PATIENT: "In attesa paziente",
+};
+
+export default function AdminDepartmentsPage() {
   const queryClient = useQueryClient();
 
   const [selectedDoctor, setSelectedDoctor] = useState(null);
@@ -23,7 +30,7 @@ export default function AdminDepartments() {
 
   const [editingDoctor, setEditingDoctor] = useState(null);
 
-  // tutti i dottori
+  //tutti i dottori
   const {
     data: doctors,
     isLoading,
@@ -40,7 +47,9 @@ export default function AdminDepartments() {
     },
     onSuccess: (deletedId) => {
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
-      setSelectedDoctor((prev) => (prev && prev.id === deletedId ? null : prev));
+      setSelectedDoctor((prev) =>
+        prev && prev.id === deletedId ? null : prev
+      );
     },
   });
 
@@ -52,8 +61,9 @@ export default function AdminDepartments() {
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
 
-      // aggiorna selezione se stavi guardando quel dottore
-      setSelectedDoctor((prev) => (prev && prev.id === updated.id ? updated : prev));
+      setSelectedDoctor((prev) =>
+        prev && prev.id === updated.id ? updated : prev
+      );
       setEditingDoctor(null);
     },
   });
@@ -70,7 +80,11 @@ export default function AdminDepartments() {
 
   if (isLoading) return <div>Caricamento reparti...</div>;
   if (error)
-    return <div className="text-red-600">Errore nel caricamento dei reparti.</div>;
+    return (
+      <div className="text-red-600">
+        Errore nel caricamento dei reparti.
+      </div>
+    );
 
   const specializations = Object.keys(groupedBySpecialization);
 
@@ -83,13 +97,17 @@ export default function AdminDepartments() {
         </div>
 
         {specializations.length === 0 && (
-          <p className="text-sm text-slate-500">Nessun dottore registrato.</p>
+          <p className="text-sm text-slate-500">
+            Nessun dottore registrato.
+          </p>
         )}
 
         <div className="space-y-4">
           {specializations.map((spec) => {
             const headerLabel =
-              spec === "SENZA_REPARTO" ? "Senza reparto" : specializationToDeptIt(spec);
+              spec === "SENZA_REPARTO"
+                ? "Senza reparto"
+                : specializationToDeptIt(spec);
 
             return (
               <div key={spec} className="bg-white border rounded shadow-sm">
@@ -98,7 +116,9 @@ export default function AdminDepartments() {
 
                   <button
                     onClick={() => {
-                      setSelectedSpecializationForNew(spec === "SENZA_REPARTO" ? "" : spec);
+                      setSelectedSpecializationForNew(
+                        spec === "SENZA_REPARTO" ? "" : spec
+                      );
                       setShowAddForm(true);
                     }}
                     className="text-xs px-2 py-1 rounded bg-blue-600 text-white"
@@ -134,7 +154,9 @@ export default function AdminDepartments() {
 
                         {/* RIMUOVI */}
                         <button
-                          onClick={() => deleteDoctorMutation.mutate(doc.id)}
+                          onClick={() =>
+                            deleteDoctorMutation.mutate(doc.id)
+                          }
                           className="text-xs text-red-600 hover:underline"
                         >
                           Rimuovi
@@ -163,7 +185,7 @@ export default function AdminDepartments() {
         )}
       </div>
 
-      {/* form "Aggiungi dottore"*/}
+      {/* form "Aggiungi dottore" */}
       {showAddForm && (
         <AddDoctorModal
           specializationDefault={selectedSpecializationForNew}
@@ -171,7 +193,7 @@ export default function AdminDepartments() {
         />
       )}
 
-      {/*"MODIFICA DOTTORE"*/}
+      {/* "MODIFICA DOTTORE" */}
       {editingDoctor && (
         <EditDoctorModal
           doctor={editingDoctor}
@@ -179,7 +201,10 @@ export default function AdminDepartments() {
           serverError={updateDoctorMutation.error?.message}
           onClose={() => setEditingDoctor(null)}
           onSave={(payload) =>
-            updateDoctorMutation.mutate({ id: editingDoctor.id, body: payload })
+            updateDoctorMutation.mutate({
+              id: editingDoctor.id,
+              body: payload,
+            })
           }
         />
       )}
@@ -190,9 +215,10 @@ export default function AdminDepartments() {
 /* === Pannello dettaglio dottore + storico visite === */
 
 function DoctorDetailPanel({ doctor, onEdit }) {
-  const { id, name, specialization, availabilityDays, availabilityShift } = doctor || {};
+  const { id, name, specialization, availabilityDays, availabilityShift } =
+    doctor || {};
 
-  //appuntamenti del dottore
+  // appuntamenti del dottore
   const {
     data: appointments,
     isLoading: loadingAppointments,
@@ -203,7 +229,7 @@ function DoctorDetailPanel({ doctor, onEdit }) {
     enabled: !!id,
   });
 
-  //funzione per risalire al nome dal patientId
+  // lista pazienti per risalire al nome
   const {
     data: patients,
     isLoading: loadingPatients,
@@ -284,19 +310,51 @@ function DoctorDetailPanel({ doctor, onEdit }) {
                   {appointments.map((appt) => {
                     const patient = patientMap.get(appt.patientId);
                     const patientName = patient
-                      ? `${patient.name} ${patient.surname}`
+                      ? `${patient.name} ${patient.surname || ""}`.trim()
                       : appt.patientId;
 
+                    const statusLabel =
+                      STATUS_LABELS_IT[appt.status] ||
+                      appt.status ||
+                      "N/D";
+
+                    let statusClass =
+                      "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700";
+                    if (appt.status === "BOOKED") {
+                      statusClass =
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-700";
+                    } else if (appt.status === "COMPLETED") {
+                      statusClass =
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-200 text-slate-700";
+                    } else if (appt.status === "CANCELED") {
+                      statusClass =
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-red-100 text-red-700";
+                    } else if (appt.status === "PENDING_PATIENT") {
+                      statusClass =
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-amber-100 text-amber-700";
+                    } else if (appt.status === "SENDED") {
+                      statusClass =
+                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-blue-100 text-blue-700";
+                    }
+
                     return (
-                      <li key={appt.id} className="py-2">
+                      <li key={appt.id} className="py-2 space-y-0.5">
                         <div className="font-medium">
-                          {formatDateTimeRome(appt.dateTime)}
+                          {appt.dateTime
+                            ? formatDateTimeRome(appt.dateTime)
+                            : "Data non disponibile"}
                         </div>
                         <div className="text-slate-600">
                           Paziente: {patientName}
                         </div>
+                        {appt.reason && (
+                          <div className="text-slate-600">
+                            Motivo: {appt.reason}
+                          </div>
+                        )}
                         <div className="text-slate-500">
-                          Stato: {appt.status || "N/D"}
+                          Stato:{" "}
+                          <span className={statusClass}>{statusLabel}</span>
                         </div>
                       </li>
                     );
@@ -317,7 +375,9 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
     ? [doctor.availabilityDays]
     : [];
 
-  const [specialization, setSpecialization] = useState(doctor.specialization || "");
+  const [specialization, setSpecialization] = useState(
+    doctor.specialization || ""
+  );
   const [availabilityShift, setAvailabilityShift] = useState(
     doctor.availabilityShift || ""
   );
@@ -325,13 +385,16 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
 
   function toggleDay(dayCode) {
     setDays((prev) =>
-      prev.includes(dayCode) ? prev.filter((d) => d !== dayCode) : [...prev, dayCode]
+      prev.includes(dayCode)
+        ? prev.filter((d) => d !== dayCode)
+        : [...prev, dayCode]
     );
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    const availabilityDaysPayload = days.length <= 1 ? (days[0] || null) : days;
+    const availabilityDaysPayload =
+      days.length <= 1 ? days[0] || null : days;
 
     onSave({
       specialization,
@@ -340,8 +403,12 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
     });
   }
 
-  const deptLabel = specialization ? specializationToDeptIt(specialization) : "—";
-  const roleLabel = specialization ? specializationToRoleIt(specialization) : "—";
+  const deptLabel = specialization
+    ? specializationToDeptIt(specialization)
+    : "—";
+  const roleLabel = specialization
+    ? specializationToRoleIt(specialization)
+    : "—";
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
@@ -349,9 +416,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
             <h3 className="text-lg font-semibold">Modifica dottore</h3>
-            <p className="text-xs text-slate-500">
-              {doctor.name}
-            </p>
+            <p className="text-xs text-slate-500">{doctor.name}</p>
           </div>
           <button
             onClick={onClose}
@@ -368,7 +433,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
         )}
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* REPARTO (salva enum specialization) */}
+          {/* REPARTO */}
           <div>
             <label className="block text-sm mb-1">Reparto</label>
             <select
@@ -387,11 +452,12 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
 
             <p className="text-xs text-slate-500 mt-1">
               Reparto: <span className="font-medium">{deptLabel}</span> •
-              Specializzazione: <span className="font-medium">{roleLabel}</span>
+              Specializzazione:{" "}
+              <span className="font-medium">{roleLabel}</span>
             </p>
           </div>
 
-          {/* GIORNI (multi) */}
+          {/* GIORNI */}
           <div>
             <label className="block text-sm mb-2">Giorni disponibili</label>
             <div className="grid grid-cols-2 gap-2">
@@ -451,17 +517,12 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
             </button>
           </div>
         </form>
-
-        <p className="text-xs text-slate-400 mt-3">
-          Backend richiesto: endpoint <code>PATCH /api/doctors/{`{id}`}</code> che aggiorna
-          specialization, availabilityDays, availabilityShift.
-        </p>
       </div>
     </div>
   );
 }
 
-/* === "Aggiungi dottore" === */
+/* === Aggiungi dottore === */
 
 function AddDoctorModal({ specializationDefault, onClose }) {
   const queryClient = useQueryClient();
@@ -512,7 +573,9 @@ function AddDoctorModal({ specializationDefault, onClose }) {
       onClose();
     } catch (err) {
       console.error(err);
-      setError("Errore nella creazione del dottore o delle credenziali.");
+      setError(
+        "Errore nella creazione del dottore o delle credenziali."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -525,9 +588,13 @@ function AddDoctorModal({ specializationDefault, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
       <div className="bg-white rounded shadow-lg w-full max-w-md p-4">
-        <h3 className="text-lg font-semibold mb-3">Aggiungi nuovo dottore</h3>
+        <h3 className="text-lg font-semibold mb-3">
+          Aggiungi nuovo dottore
+        </h3>
 
-        {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
+        {error && (
+          <div className="text-sm text-red-600 mb-2">{error}</div>
+        )}
 
         <form className="space-y-3" onSubmit={handleSubmit}>
           <div>
@@ -560,7 +627,9 @@ function AddDoctorModal({ specializationDefault, onClose }) {
 
             <p className="text-xs text-slate-500 mt-1">
               Specializzazione associata:{" "}
-              <span className="font-medium">{selectedMeta?.roleLabel || "—"}</span>
+              <span className="font-medium">
+                {selectedMeta?.roleLabel || "—"}
+              </span>
             </p>
           </div>
 
@@ -601,7 +670,9 @@ function AddDoctorModal({ specializationDefault, onClose }) {
           </div>
 
           <div className="border-t pt-3 mt-2">
-            <h4 className="text-sm font-semibold mb-2">Credenziali di accesso</h4>
+            <h4 className="text-sm font-semibold mb-2">
+              Credenziali di accesso
+            </h4>
 
             <div>
               <label className="block text-sm mb-1">Email (login)</label>
@@ -616,7 +687,9 @@ function AddDoctorModal({ specializationDefault, onClose }) {
             </div>
 
             <div>
-              <label className="block text-sm mb-1">Password (login)</label>
+              <label className="block text-sm mb-1">
+                Password (login)
+              </label>
               <input
                 type="password"
                 name="password"

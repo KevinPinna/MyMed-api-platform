@@ -73,7 +73,12 @@ export default function DoctorDashboard() {
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
       <aside className="w-64 bg-white border-r px-4 py-6 flex flex-col gap-2">
-        <h2 className="text-lg font-semibold mb-4">Area Dottore</h2>
+        <div className="px-4 py-4">
+          <h1 className="text-lg font-semibold">MyMed Doctor</h1>
+          <p className="text-xs text-slate-500">
+            Area Dottore
+          </p>
+        </div>
 
         <button
           onClick={() => setActiveSection("home")}
@@ -119,7 +124,7 @@ export default function DoctorDashboard() {
           Disponibilità
         </button>
 
-        <div className="mt-auto pt-4 border-t">
+        <div className="mt-auto pt-4 ">
           <button
             onClick={logout}
             className="w-full text-left px-4 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50"
@@ -134,7 +139,6 @@ export default function DoctorDashboard() {
         {/* Header */}
         <header className="h-16 bg-white border-b px-6 flex items-center justify-between">
           <div className="text-sm text-slate-500">
-            Pannello di controllo dottore
           </div>
 
           <div className="flex items-center gap-2">

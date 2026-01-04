@@ -126,7 +126,7 @@ function DoctorPatientsSection({ doctorId, onOpenPdf }) {
                 Cartella clinica di {formatPatientName(selectedPatient)}
               </h3>
               <p className="text-xs text-slate-500">
-                Tutti i referti salvati per questo paziente con questo dottore.
+                Tutti i referti salvati per questo paziente.
               </p>
             </div>
 

@@ -77,7 +77,7 @@ public class VisitReportService {
         if (doctorId != null && !doctorId.isBlank()) {
             return visitReportRepository.findByDoctorIdOrderByCreatedAtDesc(doctorId);
         }
-        
+
         return visitReportRepository.findAll();
     }
 }

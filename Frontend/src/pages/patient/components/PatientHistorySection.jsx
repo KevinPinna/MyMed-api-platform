@@ -92,9 +92,7 @@ export default function PatientHistorySection() {
           Storico visite e referti
         </h2>
         <p className="text-xs text-slate-500 mb-4">
-          Qui trovi le visite già concluse o annullate. Per le visite completate
-          puoi aprire il referto; per quelle annullate vedrai che
-          l&apos;appuntamento non è stato effettuato.
+          Qui trovi le visite già concluse o annullate.
         </p>
 
         {completedAppointments.length === 0 ? (
