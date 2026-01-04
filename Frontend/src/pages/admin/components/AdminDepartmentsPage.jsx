@@ -6,11 +6,8 @@ import {
   specializationToDeptIt,
   specializationToRoleIt,
   DEPARTMENT_OPTIONS,
-  dayToItalian,
-  shiftToItalian,
-  DAY_LABEL_IT,
-  SHIFT_LABEL_IT,
 } from "../../../lib/labels";
+import { weekdayCodes, weekdayLabels } from "../../../lib/weekdays";
 
 const STATUS_LABELS_IT = {
   SENDED: "Richiesta paziente",
@@ -23,16 +20,16 @@ const STATUS_LABELS_IT = {
 export default function AdminDepartmentsPage() {
   const queryClient = useQueryClient();
 
+  const [selectedSpec, setSelectedSpec] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedSpecializationForNew, setSelectedSpecializationForNew] =
     useState("");
-
   const [editingDoctor, setEditingDoctor] = useState(null);
 
-  //tutti i dottori
+  // tutti i dottori
   const {
-    data: doctors,
+    data: doctors = [],
     isLoading,
     error,
   } = useQuery({
@@ -53,10 +50,13 @@ export default function AdminDepartmentsPage() {
     },
   });
 
-  //UPDATE doctor
   const updateDoctorMutation = useMutation({
     mutationFn: async ({ id, body }) => {
-      return api(`/api/doctors/${id}`, { method: "PATCH", body });
+      // PATCH: specializzazione / giorni / turno
+      return api(`/api/doctors/${id}`, {
+        method: "PATCH",
+        body,
+      });
     },
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
@@ -78,114 +78,139 @@ export default function AdminDepartmentsPage() {
     return groups;
   }, [doctors]);
 
-  if (isLoading) return <div>Caricamento reparti...</div>;
-  if (error)
+  if (isLoading) {
     return (
-      <div className="text-red-600">
+      <div className="bg-white rounded-xl shadow-sm p-4">
+        Caricamento reparti...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-4 text-red-600 text-sm">
         Errore nel caricamento dei reparti.
       </div>
     );
+  }
 
-  const specializations = Object.keys(groupedBySpecialization);
+  const specKeys = Object.keys(groupedBySpecialization);
+
+  function handleSelectSpec(spec) {
+    setSelectedSpec(spec);
+    setSelectedDoctor(null);
+  }
 
   return (
-    <div className="flex gap-6">
-      {/* colonna reparti + dottori */}
-      <div className="flex-1 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Reparti e dottori</h2>
+    <>
+      <div className="flex gap-6">
+        {/* Colonna sinistra: reparti */}
+        <div className="w-64 bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold">Reparti</h2>
+          </div>
+
+          {specKeys.length === 0 ? (
+            <p className="text-xs text-slate-500">
+              Nessun dottore registrato.
+            </p>
+          ) : (
+            <ul className="space-y-1 text-sm">
+              {specKeys.map((spec) => {
+                const label =
+                  spec === "SENZA_REPARTO"
+                    ? "Senza reparto"
+                    : specializationToDeptIt(spec);
+
+                return (
+                  <li key={spec}>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSpec(spec)}
+                      className={`w-full text-left px-3 py-2 rounded-lg ${
+                        selectedSpec === spec
+                          ? "bg-blue-600 text-white"
+                          : "hover:bg-slate-100 text-slate-700"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
 
-        {specializations.length === 0 && (
-          <p className="text-sm text-slate-500">
-            Nessun dottore registrato.
-          </p>
-        )}
+        {/* Colonna centrale: dottori del reparto */}
+        <div className="flex-1 bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold">Dottori del reparto</h2>
 
-        <div className="space-y-4">
-          {specializations.map((spec) => {
-            const headerLabel =
-              spec === "SENZA_REPARTO"
-                ? "Senza reparto"
-                : specializationToDeptIt(spec);
+            {selectedSpec && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedSpecializationForNew(
+                    selectedSpec === "SENZA_REPARTO" ? "" : selectedSpec
+                  );
+                  setShowAddForm(true);
+                }}
+                className="text-xs px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Aggiungi dottore
+              </button>
+            )}
+          </div>
 
-            return (
-              <div key={spec} className="bg-white border rounded shadow-sm">
-                <div className="px-4 py-2 border-b flex items-center justify-between">
-                  <h3 className="font-semibold">{headerLabel}</h3>
-
-                  <button
-                    onClick={() => {
-                      setSelectedSpecializationForNew(
-                        spec === "SENZA_REPARTO" ? "" : spec
-                      );
-                      setShowAddForm(true);
-                    }}
-                    className="text-xs px-2 py-1 rounded bg-blue-600 text-white"
-                  >
-                    Aggiungi dottore
-                  </button>
-                </div>
-
-                <ul className="divide-y">
-                  {groupedBySpecialization[spec].map((doc) => (
-                    <li
-                      key={doc.id}
-                      className="px-4 py-2 flex items-center justify-between gap-2"
-                    >
-                      <button
-                        className="text-sm text-blue-700 hover:underline text-left"
-                        onClick={() => setSelectedDoctor(doc)}
-                      >
-                        {doc.name}
-                        <span className="text-xs text-slate-500 ml-2">
-                          • {specializationToRoleIt(doc.specialization)}
-                        </span>
-                      </button>
-
-                      <div className="flex items-center gap-3">
-                        {/* MODIFICA */}
-                        <button
-                          onClick={() => setEditingDoctor(doc)}
-                          className="text-xs text-indigo-700 hover:underline"
-                        >
-                          Modifica
-                        </button>
-
-                        {/* RIMUOVI */}
-                        <button
-                          onClick={() =>
-                            deleteDoctorMutation.mutate(doc.id)
-                          }
-                          className="text-xs text-red-600 hover:underline"
-                        >
-                          Rimuovi
-                        </button>
-                      </div>
+          {!selectedSpec ? (
+            <p className="text-xs text-slate-500">
+              Seleziona prima un reparto sulla sinistra.
+            </p>
+          ) : (
+            <>
+              {groupedBySpecialization[selectedSpec]?.length === 0 ? (
+                <p className="text-xs text-slate-500">
+                  Nessun dottore in questo reparto.
+                </p>
+              ) : (
+                <ul className="space-y-2 max-h-[70vh] overflow-auto pr-1">
+                  {groupedBySpecialization[selectedSpec].map((doc) => (
+                    <li key={doc.id}>
+                      <DoctorCard
+                        doctor={doc}
+                        onSelect={() => setSelectedDoctor(doc)}
+                        onEdit={() => setEditingDoctor(doc)}
+                        onRemove={() =>
+                          deleteDoctorMutation.mutate(doc.id)
+                        }
+                        selected={selectedDoctor?.id === doc.id}
+                      />
                     </li>
                   ))}
                 </ul>
-              </div>
-            );
-          })}
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Colonna destra: scheda dottore + storico visite */}
+        <div className="w-[420px]">
+          {selectedDoctor ? (
+            <DoctorDetailPanel
+              doctor={selectedDoctor}
+              onEdit={() => setEditingDoctor(selectedDoctor)}
+            />
+          ) : (
+            <div className="bg-white rounded-xl shadow-sm border p-4 text-xs text-slate-500">
+              Seleziona un dottore per vedere la scheda e lo storico
+              visite.
+            </div>
+          )}
         </div>
       </div>
 
-      {/* colonna destra: dettaglio dottore + storico visite */}
-      <div className="w-full max-w-md">
-        {selectedDoctor ? (
-          <DoctorDetailPanel
-            doctor={selectedDoctor}
-            onEdit={() => setEditingDoctor(selectedDoctor)}
-          />
-        ) : (
-          <div className="bg-white border rounded shadow-sm p-4 text-sm text-slate-500">
-            Seleziona un dottore per vedere la scheda e lo storico visite.
-          </div>
-        )}
-      </div>
-
-      {/* form "Aggiungi dottore" */}
+      {/* Aggiungi dottore */}
       {showAddForm && (
         <AddDoctorModal
           specializationDefault={selectedSpecializationForNew}
@@ -193,7 +218,7 @@ export default function AdminDepartmentsPage() {
         />
       )}
 
-      {/* "MODIFICA DOTTORE" */}
+      {/* Modifica dottore (disponibilità/specializzazione) */}
       {editingDoctor && (
         <EditDoctorModal
           doctor={editingDoctor}
@@ -208,11 +233,89 @@ export default function AdminDepartmentsPage() {
           }
         />
       )}
+    </>
+  );
+}
+
+/* === DoctorCard === */
+
+function DoctorCard({ doctor, onSelect, onEdit, onRemove, selected }) {
+  const specKey = doctor.specialization;
+  const deptLabel = specKey ? specializationToDeptIt(specKey) : "";
+  const roleLabel = specKey ? specializationToRoleIt(specKey) : "";
+
+  const days = Array.isArray(doctor.availabilityDays)
+    ? doctor.availabilityDays
+    : doctor.availabilityDays
+    ? [doctor.availabilityDays]
+    : [];
+
+  function renderShiftLabel(shift) {
+    if (!shift) return "N/D";
+    if (shift === "MORNING") return "Mattina (09:00 - 13:00)";
+    if (shift === "AFTERNOON") return "Pomeriggio (14:00 - 18:00)";
+    return "Giornata intera (09:00 - 18:00)";
+  }
+
+  return (
+    <div
+      className={`w-full border rounded-lg px-3 py-2 text-left text-sm flex flex-col gap-1 ${
+        selected
+          ? "border-blue-600 bg-blue-50"
+          : "border-slate-200 bg-white hover:bg-slate-50"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <button
+          type="button"
+          onClick={onSelect}
+          className="text-left flex-1"
+        >
+          <div className="font-semibold text-slate-800">
+            {doctor.name}
+          </div>
+          <div className="text-xs text-slate-600">
+            {roleLabel && <span>{roleLabel}</span>}
+            {deptLabel && (
+              <span className="ml-1 text-slate-500">· {deptLabel}</span>
+            )}
+          </div>
+
+          {days.length > 0 && (
+            <div className="text-[11px] text-slate-500">
+              Giorni: {days.map((d) => weekdayLabels[d] || d).join(", ")}
+            </div>
+          )}
+
+          {doctor.availabilityShift && (
+            <div className="text-[11px] text-slate-500">
+              Orario: {renderShiftLabel(doctor.availabilityShift)}
+            </div>
+          )}
+        </button>
+
+        <div className="flex flex-col gap-1">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="text-[11px] px-2 py-1 rounded border border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+          >
+            Modifica
+          </button>
+          <button
+            type="button"
+            onClick={onRemove}
+            className="text-[11px] px-2 py-1 rounded border border-red-600 text-red-600 hover:bg-red-50"
+          >
+            Rimuovi
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
 
-/* === Pannello dettaglio dottore + storico visite === */
+//Pannello dettaglio dottore + storico visite
 
 function DoctorDetailPanel({ doctor, onEdit }) {
   const { id, name, specialization, availabilityDays, availabilityShift } =
@@ -220,7 +323,7 @@ function DoctorDetailPanel({ doctor, onEdit }) {
 
   // appuntamenti del dottore
   const {
-    data: appointments,
+    data: appointments = [],
     isLoading: loadingAppointments,
     error: errorAppointments,
   } = useQuery({
@@ -229,9 +332,9 @@ function DoctorDetailPanel({ doctor, onEdit }) {
     enabled: !!id,
   });
 
-  // lista pazienti per risalire al nome
+  // lista pazienti
   const {
-    data: patients,
+    data: patients = [],
     isLoading: loadingPatients,
     error: errorPatients,
   } = useQuery({
@@ -239,19 +342,38 @@ function DoctorDetailPanel({ doctor, onEdit }) {
     queryFn: () => api("/api/patients"),
   });
 
-  const patientMap = new Map((patients || []).map((p) => [p.id, p]));
+  const patientMap = useMemo(
+    () => new Map((patients || []).map((p) => [p.id, p])),
+    [patients]
+  );
 
-  const daysText = Array.isArray(availabilityDays)
-    ? availabilityDays.map(dayToItalian).join(", ")
-    : dayToItalian(availabilityDays);
+  const daysText = useMemo(() => {
+    if (!availabilityDays || availabilityDays.length === 0) return "";
+    const arr = Array.isArray(availabilityDays)
+      ? availabilityDays
+      : [availabilityDays];
+    return arr.map((code) => weekdayLabels[code] || code).join(", ");
+  }, [availabilityDays]);
+
+  function renderShiftLabel(shift) {
+    if (!shift) return "N/D";
+    if (shift === "MORNING") return "Mattina (09:00 - 13:00)";
+    if (shift === "AFTERNOON") return "Pomeriggio (14:00 - 18:00)";
+    return "Giornata intera (09:00 - 18:00)";
+  }
 
   return (
-    <div className="bg-white border rounded shadow-sm p-4 space-y-3">
+    <div className="bg-white border rounded-xl shadow-sm p-4 space-y-3 text-sm">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-lg font-semibold">Scheda dottore</h3>
+        <div>
+          <h3 className="text-sm font-semibold">Scheda dottore</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Gestione anagrafica e disponibilità.
+          </p>
+        </div>
         <button
           onClick={onEdit}
-          className="text-xs px-2 py-1 rounded border hover:bg-slate-50"
+          className="text-xs px-3 py-1 rounded-lg border border-slate-300 hover:bg-slate-50"
         >
           Modifica
         </button>
@@ -280,12 +402,12 @@ function DoctorDetailPanel({ doctor, onEdit }) {
 
         <div>
           <span className="font-medium">Turno: </span>
-          {shiftToItalian(availabilityShift)}
+          {renderShiftLabel(availabilityShift)}
         </div>
       </div>
 
       <div className="pt-2 border-t">
-        <h4 className="font-semibold text-sm mb-2">Storico visite</h4>
+        <h4 className="font-semibold text-xs mb-2">Storico visite</h4>
 
         {(loadingAppointments || loadingPatients) && (
           <div className="text-xs">Caricamento...</div>
@@ -306,7 +428,7 @@ function DoctorDetailPanel({ doctor, onEdit }) {
                   Nessun appuntamento registrato.
                 </p>
               ) : (
-                <ul className="max-h-64 overflow-auto divide-y text-xs">
+                <ul className="max-h-64 overflow-auto divide-y text-xs pr-1">
                   {appointments.map((appt) => {
                     const patient = patientMap.get(appt.patientId);
                     const patientName = patient
@@ -368,6 +490,8 @@ function DoctorDetailPanel({ doctor, onEdit }) {
   );
 }
 
+//Modifica dottore
+
 function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
   const initialDays = Array.isArray(doctor.availabilityDays)
     ? doctor.availabilityDays
@@ -378,41 +502,28 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
   const [specialization, setSpecialization] = useState(
     doctor.specialization || ""
   );
-  const [availabilityShift, setAvailabilityShift] = useState(
-    doctor.availabilityShift || ""
-  );
-  const [days, setDays] = useState(initialDays);
+  const [selectedDays, setSelectedDays] = useState(initialDays);
+  const [shift, setShift] = useState(doctor.availabilityShift || "FULL_DAY");
 
-  function toggleDay(dayCode) {
-    setDays((prev) =>
-      prev.includes(dayCode)
-        ? prev.filter((d) => d !== dayCode)
-        : [...prev, dayCode]
+  function toggleDay(code) {
+    setSelectedDays((prev) =>
+      prev.includes(code) ? prev.filter((d) => d !== code) : [...prev, code]
     );
   }
 
   function handleSubmit(e) {
     e.preventDefault();
-    const availabilityDaysPayload =
-      days.length <= 1 ? days[0] || null : days;
 
     onSave({
       specialization,
-      availabilityShift,
-      availabilityDays: availabilityDaysPayload,
+      availabilityDays: selectedDays,
+      availabilityShift: shift,
     });
   }
 
-  const deptLabel = specialization
-    ? specializationToDeptIt(specialization)
-    : "—";
-  const roleLabel = specialization
-    ? specializationToRoleIt(specialization)
-    : "—";
-
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow-lg w-full max-w-md p-4">
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-4 max-h-[90vh] flex flex-col">
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
             <h3 className="text-lg font-semibold">Modifica dottore</h3>
@@ -432,14 +543,17 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
           </div>
         )}
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* REPARTO */}
+        <form
+          className="space-y-4 text-sm overflow-y-auto pr-1"
+          onSubmit={handleSubmit}
+        >
+          {/* REPARTO (specialization) */}
           <div>
-            <label className="block text-sm mb-1">Reparto</label>
+            <label className="block text-xs mb-1">Reparto</label>
             <select
               value={specialization}
               onChange={(e) => setSpecialization(e.target.value)}
-              className="border rounded w-full px-2 py-1 text-sm"
+              className="border rounded-lg w-full px-2 py-1 text-sm"
               required
             >
               <option value="">Seleziona un reparto</option>
@@ -450,59 +564,117 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
               ))}
             </select>
 
-            <p className="text-xs text-slate-500 mt-1">
-              Reparto: <span className="font-medium">{deptLabel}</span> •
-              Specializzazione:{" "}
-              <span className="font-medium">{roleLabel}</span>
+            <p className="text-[11px] text-slate-500 mt-1">
+              Ruolo:{" "}
+              <span className="font-medium">
+                {specialization ? specializationToRoleIt(specialization) : "—"}
+              </span>
             </p>
           </div>
 
-          {/* GIORNI */}
+          {/* Giorni disponibili */}
           <div>
-            <label className="block text-sm mb-2">Giorni disponibili</label>
-            <div className="grid grid-cols-2 gap-2">
-              {Object.keys(DAY_LABEL_IT).map((dayCode) => (
-                <label
-                  key={dayCode}
-                  className="flex items-center gap-2 text-sm border rounded px-2 py-1"
-                >
-                  <input
-                    type="checkbox"
-                    checked={days.includes(dayCode)}
-                    onChange={() => toggleDay(dayCode)}
-                  />
-                  {DAY_LABEL_IT[dayCode]}
-                </label>
-              ))}
+            <label className="block text-xs mb-1">
+              Giorni in cui lavora
+            </label>
+            <p className="text-[11px] text-slate-500 mb-2">
+              Seleziona uno o più giorni della settimana.
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {weekdayCodes
+                .filter((code) => code !== "SUNDAY")
+                .concat(["SUNDAY"])
+                .map((code) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => toggleDay(code)}
+                    className={`px-3 py-2 rounded-lg border text-xs text-left ${
+                      selectedDays.includes(code)
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-slate-200 bg-white hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    {weekdayLabels[code] || code}
+                  </button>
+                ))}
             </div>
-            <p className="text-xs text-slate-500 mt-1">
-              Seleziona 1 o più giorni.
-            </p>
+
+            {selectedDays.length === 0 && (
+              <p className="text-[11px] text-amber-600 mt-1">
+                Nessun giorno selezionato: i pazienti non potranno
+                prenotare appuntamenti.
+              </p>
+            )}
           </div>
 
-          {/* TURNO */}
+          {/* Fascia oraria */}
           <div>
-            <label className="block text-sm mb-1">Turno</label>
-            <select
-              value={availabilityShift}
-              onChange={(e) => setAvailabilityShift(e.target.value)}
-              className="border rounded w-full px-2 py-1 text-sm"
-              required
-            >
-              <option value="">Seleziona un turno</option>
-              {Object.keys(SHIFT_LABEL_IT).map((shiftCode) => (
-                <option key={shiftCode} value={shiftCode}>
-                  {SHIFT_LABEL_IT[shiftCode]}
-                </option>
-              ))}
-            </select>
+            <label className="block text-xs mb-1">
+              Fascia oraria di lavoro
+            </label>
+            <p className="text-[11px] text-slate-500 mb-2">
+              Utilizzata per generare gli slot di prenotazione dei
+              pazienti.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <label className="flex items-center gap-2 text-xs border rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name="shift"
+                  value="MORNING"
+                  checked={shift === "MORNING"}
+                  onChange={() => setShift("MORNING")}
+                />
+                <div>
+                  <div className="font-semibold">Mattina</div>
+                  <div className="text-[11px] text-slate-500">
+                    09:00 - 13:00
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-2 text-xs border rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name="shift"
+                  value="AFTERNOON"
+                  checked={shift === "AFTERNOON"}
+                  onChange={() => setShift("AFTERNOON")}
+                />
+                <div>
+                  <div className="font-semibold">Pomeriggio</div>
+                  <div className="text-[11px] text-slate-500">
+                    14:00 - 18:00
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-2 text-xs border rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name="shift"
+                  value="FULL_DAY"
+                  checked={shift === "FULL_DAY"}
+                  onChange={() => setShift("FULL_DAY")}
+                />
+                <div>
+                  <div className="font-semibold">Giornata intera</div>
+                  <div className="text-[11px] text-slate-500">
+                    09:00 - 18:00
+                  </div>
+                </div>
+              </label>
+            </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 pt-2 border-t mt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1 rounded border text-sm"
+              className="px-3 py-1 rounded-lg border text-sm"
               disabled={isSaving}
             >
               Annulla
@@ -511,7 +683,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-3 py-1 rounded bg-indigo-600 text-white text-sm disabled:opacity-60"
+              className="px-3 py-1 rounded-lg bg-indigo-600 text-white text-sm disabled:opacity-60"
             >
               {isSaving ? "Salvataggio..." : "Salva modifiche"}
             </button>
@@ -522,18 +694,20 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
   );
 }
 
-/* === Aggiungi dottore === */
+//Aggiungi dottore
 
 function AddDoctorModal({ specializationDefault, onClose }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
     name: "",
     specialization: specializationDefault || "",
-    availabilityDays: "",
-    availabilityShift: "",
     email: "",
     password: "",
   });
+
+  const [selectedDays, setSelectedDays] = useState([]);
+  const [shift, setShift] = useState("FULL_DAY");
+
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -542,22 +716,30 @@ function AddDoctorModal({ specializationDefault, onClose }) {
     setForm((prev) => ({ ...prev, [name]: value }));
   }
 
+  function toggleDay(code) {
+    setSelectedDays((prev) =>
+      prev.includes(code) ? prev.filter((d) => d !== code) : [...prev, code]
+    );
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setIsSubmitting(true);
 
     try {
+      //crea Doctor 
       const doctor = await api("/api/doctors", {
         method: "POST",
         body: {
           name: form.name,
           specialization: form.specialization,
-          availabilityDays: form.availabilityDays,
-          availabilityShift: form.availabilityShift,
+          availabilityDays: selectedDays,
+          availabilityShift: shift,
         },
       });
 
+      //crea UserAccount collegato al DOCTOR
       await api("/api/auth/register", {
         method: "POST",
         body: {
@@ -574,7 +756,8 @@ function AddDoctorModal({ specializationDefault, onClose }) {
     } catch (err) {
       console.error(err);
       setError(
-        "Errore nella creazione del dottore o delle credenziali."
+        err?.message ||
+          "Errore nella creazione del dottore o delle credenziali."
       );
     } finally {
       setIsSubmitting(false);
@@ -587,34 +770,53 @@ function AddDoctorModal({ specializationDefault, onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow-lg w-full max-w-md p-4">
-        <h3 className="text-lg font-semibold mb-3">
-          Aggiungi nuovo dottore
-        </h3>
+      <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-4 max-h-[90vh] flex flex-col">
+        <div className="flex items-start justify-between mb-3">
+          <div>
+            <h3 className="text-lg font-semibold">
+              Aggiungi nuovo dottore
+            </h3>
+            <p className="text-xs text-slate-500">
+              Crea profilo dottore e utenza di accesso.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-sm px-2 py-1 rounded border hover:bg-slate-50"
+          >
+            Chiudi
+          </button>
+        </div>
 
         {error && (
           <div className="text-sm text-red-600 mb-2">{error}</div>
         )}
 
-        <form className="space-y-3" onSubmit={handleSubmit}>
+        <form
+          className="space-y-3 text-sm overflow-y-auto pr-1"
+          onSubmit={handleSubmit}
+        >
+          {/* Nome */}
           <div>
-            <label className="block text-sm mb-1">Nome e cognome</label>
+            <label className="block text-xs mb-1">Nome e cognome</label>
             <input
               name="name"
               value={form.name}
               onChange={handleChange}
-              className="border rounded w-full px-2 py-1 text-sm"
+              className="border rounded-lg w-full px-2 py-1 text-sm"
               required
             />
           </div>
 
+          {/* Reparto / specializzazione */}
           <div>
-            <label className="block text-sm mb-1">Reparto</label>
+            <label className="block text-xs mb-1">Reparto</label>
             <select
               name="specialization"
               value={form.specialization}
               onChange={handleChange}
-              className="border rounded w-full px-2 py-1 text-sm"
+              className="border rounded-lg w-full px-2 py-1 text-sm"
               required
             >
               <option value="">Seleziona un reparto</option>
@@ -625,7 +827,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
               ))}
             </select>
 
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-[11px] text-slate-500 mt-1">
               Specializzazione associata:{" "}
               <span className="font-medium">
                 {selectedMeta?.roleLabel || "—"}
@@ -633,87 +835,153 @@ function AddDoctorModal({ specializationDefault, onClose }) {
             </p>
           </div>
 
+          {/* Giorni disponibili */}
           <div>
-            <label className="block text-sm mb-1">Giorno disponibile</label>
-            <select
-              name="availabilityDays"
-              value={form.availabilityDays}
-              onChange={handleChange}
-              className="border rounded w-full px-2 py-1 text-sm"
-              required
-            >
-              <option value="">Seleziona un giorno</option>
-              <option value="MONDAY">Lunedì</option>
-              <option value="TUESDAY">Martedì</option>
-              <option value="WEDNESDAY">Mercoledì</option>
-              <option value="THURSDAY">Giovedì</option>
-              <option value="FRIDAY">Venerdì</option>
-              <option value="SATURDAY">Sabato</option>
-              <option value="SUNDAY">Domenica</option>
-            </select>
+            <label className="block text-xs mb-1">
+              Giorni disponibili
+            </label>
+            <p className="text-[11px] text-slate-500 mb-2">
+              Seleziona uno o più giorni lavorativi per questo dottore.
+            </p>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {weekdayCodes
+                .filter((code) => code !== "SUNDAY")
+                .concat(["SUNDAY"])
+                .map((code) => (
+                  <button
+                    key={code}
+                    type="button"
+                    onClick={() => toggleDay(code)}
+                    className={`px-3 py-2 rounded-lg border text-xs text-left ${
+                      selectedDays.includes(code)
+                        ? "border-blue-600 bg-blue-50 text-blue-700"
+                        : "border-slate-200 bg-white hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    {weekdayLabels[code] || code}
+                  </button>
+                ))}
+            </div>
+
+            {selectedDays.length === 0 && (
+              <p className="text-[11px] text-amber-600 mt-1">
+                Nessun giorno selezionato: i pazienti non potranno
+                prenotare appuntamenti.
+              </p>
+            )}
           </div>
 
+          {/* Fascia oraria */}
           <div>
-            <label className="block text-sm mb-1">Turno</label>
-            <select
-              name="availabilityShift"
-              value={form.availabilityShift}
-              onChange={handleChange}
-              className="border rounded w-full px-2 py-1 text-sm"
-              required
-            >
-              <option value="">Seleziona un turno</option>
-              <option value="MORNING">Mattina</option>
-              <option value="AFTERNOON">Pomeriggio</option>
-              <option value="FULL_DAY">Tutto il giorno</option>
-            </select>
+            <label className="block text-xs mb-1">
+              Fascia oraria di lavoro
+            </label>
+            <p className="text-[11px] text-slate-500 mb-2">
+              Serve a generare gli slot di prenotazione (come nella
+              schermata paziente).
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <label className="flex items-center gap-2 text-xs border rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name="shift"
+                  value="MORNING"
+                  checked={shift === "MORNING"}
+                  onChange={() => setShift("MORNING")}
+                />
+                <div>
+                  <div className="font-semibold">Mattina</div>
+                  <div className="text-[11px] text-slate-500">
+                    09:00 - 13:00
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-2 text-xs border rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name="shift"
+                  value="AFTERNOON"
+                  checked={shift === "AFTERNOON"}
+                  onChange={() => setShift("AFTERNOON")}
+                />
+                <div>
+                  <div className="font-semibold">Pomeriggio</div>
+                  <div className="text-[11px] text-slate-500">
+                    14:00 - 18:00
+                  </div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-2 text-xs border rounded-lg px-3 py-2 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name="shift"
+                  value="FULL_DAY"
+                  checked={shift === "FULL_DAY"}
+                  onChange={() => setShift("FULL_DAY")}
+                />
+                <div>
+                  <div className="font-semibold">Giornata intera</div>
+                  <div className="text-[11px] text-slate-500">
+                    09:00 - 18:00
+                  </div>
+                </div>
+              </label>
+            </div>
           </div>
 
+          {/* Credenziali utente */}
           <div className="border-t pt-3 mt-2">
             <h4 className="text-sm font-semibold mb-2">
               Credenziali di accesso
             </h4>
 
-            <div>
-              <label className="block text-sm mb-1">Email (login)</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="border rounded w-full px-2 py-1 text-sm"
-                required
-              />
-            </div>
+            <div className="space-y-2">
+              <div>
+                <label className="block text-xs mb-1">Email (login)</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  className="border rounded-lg w-full px-2 py-1 text-sm"
+                  required
+                />
+              </div>
 
-            <div>
-              <label className="block text-sm mb-1">
-                Password (login)
-              </label>
-              <input
-                type="password"
-                name="password"
-                value={form.password}
-                onChange={handleChange}
-                className="border rounded w-full px-2 py-1 text-sm"
-                required
-                minLength={6}
-              />
+              <div>
+                <label className="block text-xs mb-1">
+                  Password (login)
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  className="border rounded-lg w-full px-2 py-1 text-sm"
+                  required
+                  minLength={6}
+                />
+              </div>
             </div>
           </div>
 
+          {/* Azioni */}
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1 rounded border text-sm"
+              className="px-3 py-1 rounded-lg border text-sm"
             >
               Annulla
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-3 py-1 rounded bg-blue-600 text-white text-sm disabled:opacity-60"
+              className="px-3 py-1 rounded-lg bg-blue-600 text-white text-sm disabled:opacity-60"
             >
               {isSubmitting ? "Salvataggio..." : "Salva"}
             </button>
