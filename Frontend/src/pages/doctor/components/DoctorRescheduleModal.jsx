@@ -90,8 +90,8 @@ export default function DoctorRescheduleModal({
   const todayStr = new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-40">
-      <div className="bg-white rounded-xl p-4 w-full max-w-lg text-sm">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-40 p-3 sm:p-4">
+      <div className="bg-white rounded-xl p-4 w-full max-w-lg text-sm max-h-[90vh] overflow-auto">
         <h3 className="font-semibold mb-2">Riprogramma appuntamento</h3>
 
         <input
@@ -106,7 +106,7 @@ export default function DoctorRescheduleModal({
         />
 
         {selectedDate && isWorkingDay && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {baseSlots.map((h) => {
               const busy = busyHours.has(h);
               return (
@@ -130,14 +130,17 @@ export default function DoctorRescheduleModal({
           </div>
         )}
 
-        <div className="flex justify-end gap-2 mt-3">
-          <button onClick={onClose} className="px-3 py-1 border rounded">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mt-3">
+          <button
+            onClick={onClose}
+            className="px-3 py-1 border rounded w-full sm:w-auto"
+          >
             Annulla
           </button>
 
           <button
             onClick={() => mutation.mutate()}
-            className="px-3 py-1 bg-blue-600 text-white rounded"
+            className="px-3 py-1 bg-blue-600 text-white rounded w-full sm:w-auto"
           >
             Conferma
           </button>

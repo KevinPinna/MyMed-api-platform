@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
 import { formatDateTimeRome } from "../../../lib/date";
@@ -48,10 +48,7 @@ export default function VisitReportForm({ appointment, doctorId, doctor }) {
   });
 
   // Appuntamenti del dottore per controllare gli slot occupati
-  const {
-    data: doctorAppointments = [],
-    isLoading: loadingSlots,
-  } = useQuery({
+  const { data: doctorAppointments = [], isLoading: loadingSlots } = useQuery({
     queryKey: ["doctorAppointmentsForFollowUp", doctorId],
     queryFn: () => api(`/api/appointments/doctor/${doctorId}`),
     enabled: !!doctorId,
@@ -182,7 +179,7 @@ export default function VisitReportForm({ appointment, doctorId, doctor }) {
 
   return (
     <>
-      <h3 className="text-md font-semibold mb-2">
+      <h3 className="text-sm sm:text-md font-semibold mb-2">
         Referto per visita del {formatDateTimeRome(appointment.dateTime)}
       </h3>
 
@@ -235,10 +232,10 @@ export default function VisitReportForm({ appointment, doctorId, doctor }) {
 
         {/* Sezione visita di controllo */}
         <div className="pt-3 mt-2 border-t">
-          <label className="flex items-center gap-2 text-xs font-semibold">
+          <label className="flex items-start sm:items-center gap-2 text-xs font-semibold">
             <input
               type="checkbox"
-              className="rounded"
+              className="rounded mt-0.5 sm:mt-0"
               checked={scheduleFollowUp}
               onChange={(e) => {
                 setScheduleFollowUp(e.target.checked);
@@ -293,12 +290,11 @@ export default function VisitReportForm({ appointment, doctorId, doctor }) {
                         disponibili.
                       </p>
                     ) : (
-                      <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
                         {baseSlots.map((hour) => {
                           const label = `${String(hour).padStart(2, "0")}:00`;
                           const isBusy = busyHours.has(hour);
-                          const disabled =
-                            isBusy || saveReportMutation.isPending;
+                          const disabled = isBusy || saveReportMutation.isPending;
 
                           return (
                             <button
@@ -339,9 +335,7 @@ export default function VisitReportForm({ appointment, doctorId, doctor }) {
         </div>
 
         {/* Messaggi di errore / successo */}
-        {errorMessage && (
-          <p className="text-xs text-red-600">{errorMessage}</p>
-        )}
+        {errorMessage && <p className="text-xs text-red-600">{errorMessage}</p>}
         {message && !errorMessage && (
           <p className="text-xs text-emerald-600">{message}</p>
         )}
@@ -349,7 +343,7 @@ export default function VisitReportForm({ appointment, doctorId, doctor }) {
         <div className="pt-2">
           <button
             type="submit"
-            className="px-3 py-1 rounded bg-blue-600 text-white text-sm disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-700"
+            className="w-full sm:w-auto px-3 py-1 rounded bg-blue-600 text-white text-sm disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-700"
             disabled={saveReportMutation.isPending}
           >
             {saveReportMutation.isPending ? "Salvataggio..." : "Salva referto"}

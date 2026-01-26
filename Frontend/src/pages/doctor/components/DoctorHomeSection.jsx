@@ -2,8 +2,8 @@ import React from "react";
 
 export default function DoctorHomeSection({ doctor, specLabel }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
-      <h1 className="text-2xl font-semibold mb-2">
+    <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
+      <h1 className="text-xl sm:text-2xl font-semibold mb-2">
         Benvenuto, {doctor?.name}
       </h1>
 
@@ -13,7 +13,7 @@ export default function DoctorHomeSection({ doctor, specLabel }) {
         </p>
       )}
 
-      <div className="grid md:grid-cols-3 gap-4 text-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
         <div className="border rounded-xl p-4">
           <h3 className="font-semibold mb-1">Agenda</h3>
           <p className="text-slate-500">
@@ -30,7 +30,7 @@ export default function DoctorHomeSection({ doctor, specLabel }) {
           </p>
         </div>
 
-        <div className="border rounded-xl p-4">
+        <div className="border rounded-xl p-4 sm:col-span-2 md:col-span-1">
           <h3 className="font-semibold mb-1">Disponibilità</h3>
           <p className="text-slate-500">
             Imposta i giorni e le fasce orarie in cui sei disponibile per le

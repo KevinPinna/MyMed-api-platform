@@ -157,24 +157,36 @@ export default function PatientAppointmentsSection() {
             Non hai appuntamenti prenotati al momento.
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <div className="max-h-[480px] overflow-y-auto">
+          <div className="overflow-x-auto -mx-4 sm:mx-0">
+            <div className="max-h-[480px] overflow-y-auto px-4 sm:px-0">
               <table className="min-w-full text-sm border rounded-lg overflow-hidden">
                 <thead className="bg-slate-100">
                   <tr>
-                    <th className="px-3 py-2 text-left">Dottore</th>
-                    <th className="px-3 py-2 text-left">Reparto</th>
-                    <th className="px-3 py-2 text-left">Data &amp; ora</th>
-                    <th className="px-3 py-2 text-left">Motivo</th>
-                    <th className="px-3 py-2 text-left">Stato</th>
-                    <th className="px-3 py-2 text-right">Azioni</th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">
+                      Dottore
+                    </th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">
+                      Reparto
+                    </th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">
+                      Data &amp; ora
+                    </th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">
+                      Motivo
+                    </th>
+                    <th className="px-3 py-2 text-left whitespace-nowrap">
+                      Stato
+                    </th>
+                    <th className="px-3 py-2 text-right whitespace-nowrap">
+                      Azioni
+                    </th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {visibleAppointments.map((appt) => {
                     const isBooked = appt.status === "BOOKED";
-                    const isPendingPatient =
-                      appt.status === "PENDING_PATIENT";
+                    const isPendingPatient = appt.status === "PENDING_PATIENT";
                     const isSended = appt.status === "SENDED";
 
                     const canModify = isBooked || isSended;
@@ -201,22 +213,22 @@ export default function PatientAppointmentsSection() {
                     return (
                       <tr key={appt.id} className="border-t">
                         <td className="px-3 py-2 align-top">
-                          <div className="font-medium">
+                          <div className="font-medium break-words">
                             {renderDoctorInfo(appt)}
                           </div>
                         </td>
 
-                        <td className="px-3 py-2 align-top">
+                        <td className="px-3 py-2 align-top break-words">
                           {renderReparto(appt)}
                         </td>
 
-                        <td className="px-3 py-2 align-top">
+                        <td className="px-3 py-2 align-top whitespace-nowrap">
                           {appt.dateTime
                             ? formatDateTimeRome(appt.dateTime)
                             : "N/D"}
                         </td>
 
-                        <td className="px-3 py-2 align-top">
+                        <td className="px-3 py-2 align-top break-words">
                           {appt.reason || "-"}
                         </td>
 
@@ -225,28 +237,22 @@ export default function PatientAppointmentsSection() {
                         </td>
 
                         <td className="px-3 py-2 align-top">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex flex-col sm:flex-row sm:justify-end gap-2">
                             {isPendingPatient ? (
                               <>
                                 <button
                                   type="button"
-                                  onClick={() =>
-                                    handleConfirmPending(appt)
-                                  }
-                                  disabled={
-                                    confirmPendingMutation.isPending
-                                  }
-                                  className="px-3 py-1 rounded text-xs bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-1"
+                                  onClick={() => handleConfirmPending(appt)}
+                                  disabled={confirmPendingMutation.isPending}
+                                  className="px-3 py-1 rounded text-xs bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center sm:justify-start gap-1 w-full sm:w-auto"
                                 >
                                   Conferma cambio
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleRejectPending(appt)}
-                                  disabled={
-                                    rejectPendingMutation.isPending
-                                  }
-                                  className="px-3 py-1 rounded text-xs bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                                  disabled={rejectPendingMutation.isPending}
+                                  className="px-3 py-1 rounded text-xs bg-red-600 text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed w-full sm:w-auto"
                                 >
                                   Rifiuta e annulla
                                 </button>
@@ -257,7 +263,7 @@ export default function PatientAppointmentsSection() {
                                   type="button"
                                   disabled={!canModify}
                                   onClick={() => setRescheduleAppt(appt)}
-                                  className={`px-3 py-1 rounded text-xs border ${
+                                  className={`px-3 py-1 rounded text-xs border w-full sm:w-auto ${
                                     canModify
                                       ? "border-blue-600 text-blue-600 hover:bg-blue-50"
                                       : "border-slate-300 text-slate-400 cursor-not-allowed"
@@ -268,11 +274,9 @@ export default function PatientAppointmentsSection() {
 
                                 <button
                                   type="button"
-                                  disabled={
-                                    !canCancel || cancelMutation.isPending
-                                  }
+                                  disabled={!canCancel || cancelMutation.isPending}
                                   onClick={() => handleCancel(appt)}
-                                  className={`px-3 py-1 rounded text-xs ${
+                                  className={`px-3 py-1 rounded text-xs w-full sm:w-auto ${
                                     canCancel
                                       ? "bg-red-600 text-white hover:bg-red-700"
                                       : "bg-slate-200 text-slate-500 cursor-not-allowed"

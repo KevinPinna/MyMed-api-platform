@@ -83,9 +83,9 @@ function DoctorPatientsSection({ doctorId, onOpenPdf }) {
   }
 
   return (
-    <div className="flex h-full gap-4">
+    <div className="flex flex-col gap-4 lg:flex-row lg:h-full lg:gap-4">
       {/* colonna sinistra: elenco pazienti */}
-      <div className="w-1/3 bg-white border rounded-xl shadow-sm p-3 flex flex-col">
+      <div className="w-full lg:w-1/3 bg-white border rounded-xl shadow-sm p-3 flex flex-col">
         <h3 className="text-sm font-semibold mb-2">Pazienti visitati</h3>
 
         {patientsForDoctor.length === 0 ? (
@@ -93,14 +93,12 @@ function DoctorPatientsSection({ doctorId, onOpenPdf }) {
             Nessun paziente con appuntamenti completati.
           </p>
         ) : (
-          <ul className="flex-1 overflow-auto max-h-[480px] divide-y text-sm">
+          <ul className="flex-1 overflow-auto max-h-[280px] sm:max-h-[360px] lg:max-h-[480px] divide-y text-sm">
             {patientsForDoctor.map((p) => (
               <li key={p.id}>
                 <button
                   className={`w-full text-left px-2 py-2 hover:bg-slate-100 ${
-                    selectedPatient?.id === p.id
-                      ? "bg-slate-100 font-medium"
-                      : ""
+                    selectedPatient?.id === p.id ? "bg-slate-100 font-medium" : ""
                   }`}
                   onClick={() => setSelectedPatient(p)}
                 >
@@ -113,7 +111,7 @@ function DoctorPatientsSection({ doctorId, onOpenPdf }) {
       </div>
 
       {/* colonna destra: cartella clinica */}
-      <div className="flex-1 bg-white border rounded-xl shadow-sm p-3 flex flex-col">
+      <div className="w-full lg:flex-1 bg-white border rounded-xl shadow-sm p-3 flex flex-col min-w-0">
         {!selectedPatient ? (
           <div className="text-sm text-slate-500">
             Seleziona un paziente per vedere la cartella clinica (storico
@@ -147,10 +145,10 @@ function DoctorPatientsSection({ doctorId, onOpenPdf }) {
                     Nessun referto presente per questo paziente.
                   </p>
                 ) : (
-                  <ul className="flex-1 overflow-auto max-h-[480px] divide-y text-xs">
+                  <ul className="flex-1 overflow-auto max-h-[320px] sm:max-h-[420px] lg:max-h-[480px] divide-y text-xs pr-1">
                     {reports.map((r) => (
                       <li key={r.id} className="py-2 space-y-1">
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                           <span className="font-medium">
                             Referto del{" "}
                             {r.createdAt
@@ -159,11 +157,12 @@ function DoctorPatientsSection({ doctorId, onOpenPdf }) {
                           </span>
                           <button
                             onClick={() => onOpenPdf?.(r)}
-                            className="text-blue-600 hover:underline text-xs"
+                            className="text-blue-600 hover:underline text-xs text-left sm:text-right"
                           >
                             Apri referto
                           </button>
                         </div>
+
                         {r.anamnesis && (
                           <div>
                             <span className="font-semibold">

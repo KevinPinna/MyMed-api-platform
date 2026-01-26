@@ -1,4 +1,3 @@
-// src/pages/doctor/DoctorDashboard.jsx
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../lib/api";
@@ -11,16 +10,15 @@ import DoctorPatientsSection from "./components/DoctorPatientSection";
 import DoctorAvailabilitySection from "./components/DoctorAvailabilitySection";
 import PdfModal from "./components/PdfModal";
 
-// ========================
-//     DASHBOARD DOTTORE
-// ========================
-
 export default function DoctorDashboard() {
   const { user, logout } = useAuth();
-  const authDoctorId = user?.doctorId; //ID del dottore preso dall' auth
+  const authDoctorId = user?.doctorId;
 
-  const [activeSection, setActiveSection] = useState("home"); // home | appointments | patients | availability
+  const [activeSection, setActiveSection] = useState("home");
   const [pdfReport, setPdfReport] = useState(null);
+
+  // NEW
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const {
     data: doctor,
@@ -34,7 +32,7 @@ export default function DoctorDashboard() {
 
   if (!authDoctorId) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white rounded-xl shadow-sm p-6 max-w-md text-sm text-red-600">
           Nessun <code>doctorId</code> trovato nel contesto di autenticazione.
           <br />
@@ -47,7 +45,7 @@ export default function DoctorDashboard() {
 
   if (loadingDoctor) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white rounded-xl shadow-sm p-4 text-sm">
           Caricamento dati dottore...
         </div>
@@ -57,7 +55,7 @@ export default function DoctorDashboard() {
 
   if (errorDoctor || !doctor) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
         <div className="bg-white rounded-xl shadow-sm p-4 text-sm text-red-600">
           Errore nel caricamento dei dati del dottore.
         </div>
@@ -69,102 +67,136 @@ export default function DoctorDashboard() {
     specializationLabels[doctor?.specialization] || doctor?.specialization;
   const displayName = doctor?.name || user?.email || "Dottore";
 
+  const linkBase = "w-full text-left px-4 py-2 rounded-lg text-sm";
+  const linkActive = "bg-blue-600 text-white";
+  const linkInactive = "text-slate-700 hover:bg-slate-200";
+
+  function goSection(key) {
+    setActiveSection(key);
+    setSidebarOpen(false);
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r px-4 py-6 flex flex-col gap-2">
-        <div className="px-4 py-4">
-          <h1 className="text-lg font-semibold">MyMed Doctor</h1>
-          <p className="text-xs text-slate-500">
-            Area Dottore
-          </p>
+      {/* OVERLAY */}
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Chiudi menu"
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/40 z-40"
+        />
+      )}
+
+      {/* SIDEBAR DRAWER */}
+      <aside
+        className={`fixed z-50 inset-y-0 left-0 w-72 bg-white border-r shadow-xl transform transition-transform duration-200
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
+      >
+        <div className="px-4 py-4 border-b flex items-start justify-between">
+          <div>
+            <h1 className="text-lg font-semibold">MyMed Doctor</h1>
+            <p className="text-xs text-slate-500">Area Dottore</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(false)}
+            className="px-2 py-1 rounded-lg border text-xs text-slate-600 hover:bg-slate-50"
+          >
+            ✕
+          </button>
         </div>
 
-        <button
-          onClick={() => setActiveSection("home")}
-          className={`w-full text-left px-4 py-2 rounded-lg text-sm ${
-            activeSection === "home"
-              ? "bg-blue-600 text-white"
-              : "text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          Home
-        </button>
-
-        <button
-          onClick={() => setActiveSection("appointments")}
-          className={`w-full text-left px-4 py-2 rounded-lg text-sm ${
-            activeSection === "appointments"
-              ? "bg-blue-600 text-white"
-              : "text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          Appuntamenti
-        </button>
-
-        <button
-          onClick={() => setActiveSection("patients")}
-          className={`w-full text-left px-4 py-2 rounded-lg text-sm ${
-            activeSection === "patients"
-              ? "bg-blue-600 text-white"
-              : "text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          Pazienti
-        </button>
-
-        <button
-          onClick={() => setActiveSection("availability")}
-          className={`w-full text-left px-4 py-2 rounded-lg text-sm ${
-            activeSection === "availability"
-              ? "bg-blue-600 text-white"
-              : "text-slate-700 hover:bg-slate-200"
-          }`}
-        >
-          Disponibilità
-        </button>
-
-        <div className="mt-auto pt-4 ">
+        <div className="p-3 space-y-2">
           <button
-            onClick={logout}
-            className="w-full text-left px-4 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50"
+            onClick={() => goSection("home")}
+            className={`${linkBase} ${
+              activeSection === "home" ? linkActive : linkInactive
+            }`}
           >
-            Logout
+            Home
           </button>
+
+          <button
+            onClick={() => goSection("appointments")}
+            className={`${linkBase} ${
+              activeSection === "appointments" ? linkActive : linkInactive
+            }`}
+          >
+            Appuntamenti
+          </button>
+
+          <button
+            onClick={() => goSection("patients")}
+            className={`${linkBase} ${
+              activeSection === "patients" ? linkActive : linkInactive
+            }`}
+          >
+            Pazienti
+          </button>
+
+          <button
+            onClick={() => goSection("availability")}
+            className={`${linkBase} ${
+              activeSection === "availability" ? linkActive : linkInactive
+            }`}
+          >
+            Disponibilità
+          </button>
+
+          <div className="pt-3 mt-3 border-t">
+            <button
+              onClick={() => {
+                setSidebarOpen(false);
+                logout();
+              }}
+              className="w-full text-left px-4 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* Contenuto principale */}
-      <div className="flex-1 flex flex-col">
+      {/* CONTENT */}
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-16 bg-white border-b px-6 flex items-center justify-between">
-          <div className="text-sm text-slate-500">
-          </div>
+        <header className="h-16 bg-white border-b px-4 sm:px-6 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="w-10 h-10 rounded-lg border border-slate-200 flex items-center justify-center hover:bg-slate-100"
+            aria-label="Apri menu"
+          >
+            ☰
+          </button>
 
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold shrink-0">
               {displayName.charAt(0).toUpperCase()}
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-slate-800">
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-medium text-slate-800 truncate">
                 {displayName}
               </span>
               {specLabel && (
-                <span className="text-xs text-slate-500">{specLabel}</span>
+                <span className="text-xs text-slate-500 truncate">
+                  {specLabel}
+                </span>
               )}
             </div>
           </div>
         </header>
 
-        {/* Sezioni */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto min-w-0">
           {activeSection === "home" && (
             <DoctorHomeSection doctor={doctor} specLabel={specLabel} />
           )}
 
           {activeSection === "appointments" && (
             <DoctorAppointmentsSection
-              doctorId={authDoctorId}         
+              doctorId={authDoctorId}
               doctor={doctor}
               onOpenPdf={(report) => setPdfReport(report)}
             />

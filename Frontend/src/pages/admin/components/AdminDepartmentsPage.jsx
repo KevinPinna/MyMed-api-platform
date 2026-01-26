@@ -44,9 +44,7 @@ export default function AdminDepartmentsPage() {
     },
     onSuccess: (deletedId) => {
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
-      setSelectedDoctor((prev) =>
-        prev && prev.id === deletedId ? null : prev
-      );
+      setSelectedDoctor((prev) => (prev && prev.id === deletedId ? null : prev));
     },
   });
 
@@ -61,9 +59,7 @@ export default function AdminDepartmentsPage() {
     onSuccess: (updated) => {
       queryClient.invalidateQueries({ queryKey: ["doctors"] });
 
-      setSelectedDoctor((prev) =>
-        prev && prev.id === updated.id ? updated : prev
-      );
+      setSelectedDoctor((prev) => (prev && prev.id === updated.id ? updated : prev));
       setEditingDoctor(null);
     },
   });
@@ -103,24 +99,21 @@ export default function AdminDepartmentsPage() {
 
   return (
     <>
-      <div className="flex gap-6">
+      {/* Layout responsive: su mobile impila, su lg torna a 3 colonne */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         {/* Colonna sinistra: reparti */}
-        <div className="w-64 bg-white rounded-xl shadow-sm border p-4">
+        <div className="w-full lg:w-64 bg-white rounded-xl shadow-sm border p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-sm font-semibold">Reparti</h2>
           </div>
 
           {specKeys.length === 0 ? (
-            <p className="text-xs text-slate-500">
-              Nessun dottore registrato.
-            </p>
+            <p className="text-xs text-slate-500">Nessun dottore registrato.</p>
           ) : (
             <ul className="space-y-1 text-sm">
               {specKeys.map((spec) => {
                 const label =
-                  spec === "SENZA_REPARTO"
-                    ? "Senza reparto"
-                    : specializationToDeptIt(spec);
+                  spec === "SENZA_REPARTO" ? "Senza reparto" : specializationToDeptIt(spec);
 
                 return (
                   <li key={spec}>
@@ -143,8 +136,8 @@ export default function AdminDepartmentsPage() {
         </div>
 
         {/* Colonna centrale: dottori del reparto */}
-        <div className="flex-1 bg-white rounded-xl shadow-sm border p-4">
-          <div className="flex items-center justify-between mb-3">
+        <div className="w-full lg:flex-1 bg-white rounded-xl shadow-sm border p-4">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-3">
             <h2 className="text-sm font-semibold">Dottori del reparto</h2>
 
             {selectedSpec && (
@@ -156,7 +149,7 @@ export default function AdminDepartmentsPage() {
                   );
                   setShowAddForm(true);
                 }}
-                className="text-xs px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+                className="text-xs px-3 py-1 rounded-lg bg-blue-600 text-white hover:bg-blue-700 w-full sm:w-auto"
               >
                 Aggiungi dottore
               </button>
@@ -181,9 +174,7 @@ export default function AdminDepartmentsPage() {
                         doctor={doc}
                         onSelect={() => setSelectedDoctor(doc)}
                         onEdit={() => setEditingDoctor(doc)}
-                        onRemove={() =>
-                          deleteDoctorMutation.mutate(doc.id)
-                        }
+                        onRemove={() => deleteDoctorMutation.mutate(doc.id)}
                         selected={selectedDoctor?.id === doc.id}
                       />
                     </li>
@@ -195,7 +186,7 @@ export default function AdminDepartmentsPage() {
         </div>
 
         {/* Colonna destra: scheda dottore + storico visite */}
-        <div className="w-[420px]">
+        <div className="w-full lg:w-[420px]">
           {selectedDoctor ? (
             <DoctorDetailPanel
               doctor={selectedDoctor}
@@ -203,8 +194,7 @@ export default function AdminDepartmentsPage() {
             />
           ) : (
             <div className="bg-white rounded-xl shadow-sm border p-4 text-xs text-slate-500">
-              Seleziona un dottore per vedere la scheda e lo storico
-              visite.
+              Seleziona un dottore per vedere la scheda e lo storico visite.
             </div>
           )}
         </div>
@@ -265,20 +255,13 @@ function DoctorCard({ doctor, onSelect, onEdit, onRemove, selected }) {
           : "border-slate-200 bg-white hover:bg-slate-50"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
-        <button
-          type="button"
-          onClick={onSelect}
-          className="text-left flex-1"
-        >
-          <div className="font-semibold text-slate-800">
-            {doctor.name}
-          </div>
+      {/* Header card responsive: su mobile può andare a capo */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
+        <button type="button" onClick={onSelect} className="text-left flex-1">
+          <div className="font-semibold text-slate-800">{doctor.name}</div>
           <div className="text-xs text-slate-600">
             {roleLabel && <span>{roleLabel}</span>}
-            {deptLabel && (
-              <span className="ml-1 text-slate-500">· {deptLabel}</span>
-            )}
+            {deptLabel && <span className="ml-1 text-slate-500">· {deptLabel}</span>}
           </div>
 
           {days.length > 0 && (
@@ -294,18 +277,19 @@ function DoctorCard({ doctor, onSelect, onEdit, onRemove, selected }) {
           )}
         </button>
 
-        <div className="flex flex-col gap-1">
+        {/* Bottoni: su mobile vanno in riga, su sm tornano colonna */}
+        <div className="flex gap-2 sm:flex-col sm:gap-1 sm:items-end">
           <button
             type="button"
             onClick={onEdit}
-            className="text-[11px] px-2 py-1 rounded border border-indigo-600 text-indigo-600 hover:bg-indigo-50"
+            className="text-[11px] px-2 py-1 rounded border border-indigo-600 text-indigo-600 hover:bg-indigo-50 w-full sm:w-auto"
           >
             Modifica
           </button>
           <button
             type="button"
             onClick={onRemove}
-            className="text-[11px] px-2 py-1 rounded border border-red-600 text-red-600 hover:bg-red-50"
+            className="text-[11px] px-2 py-1 rounded border border-red-600 text-red-600 hover:bg-red-50 w-full sm:w-auto"
           >
             Rimuovi
           </button>
@@ -315,11 +299,10 @@ function DoctorCard({ doctor, onSelect, onEdit, onRemove, selected }) {
   );
 }
 
-//Pannello dettaglio dottore + storico visite
+// Pannello dettaglio dottore + storico visite
 
 function DoctorDetailPanel({ doctor, onEdit }) {
-  const { id, name, specialization, availabilityDays, availabilityShift } =
-    doctor || {};
+  const { id, name, specialization, availabilityDays, availabilityShift } = doctor || {};
 
   // appuntamenti del dottore
   const {
@@ -349,9 +332,7 @@ function DoctorDetailPanel({ doctor, onEdit }) {
 
   const daysText = useMemo(() => {
     if (!availabilityDays || availabilityDays.length === 0) return "";
-    const arr = Array.isArray(availabilityDays)
-      ? availabilityDays
-      : [availabilityDays];
+    const arr = Array.isArray(availabilityDays) ? availabilityDays : [availabilityDays];
     return arr.map((code) => weekdayLabels[code] || code).join(", ");
   }, [availabilityDays]);
 
@@ -364,7 +345,8 @@ function DoctorDetailPanel({ doctor, onEdit }) {
 
   return (
     <div className="bg-white border rounded-xl shadow-sm p-4 space-y-3 text-sm">
-      <div className="flex items-start justify-between gap-3">
+      {/* Header responsive */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
         <div>
           <h3 className="text-sm font-semibold">Scheda dottore</h3>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -373,7 +355,7 @@ function DoctorDetailPanel({ doctor, onEdit }) {
         </div>
         <button
           onClick={onEdit}
-          className="text-xs px-3 py-1 rounded-lg border border-slate-300 hover:bg-slate-50"
+          className="text-xs px-3 py-1 rounded-lg border border-slate-300 hover:bg-slate-50 w-full sm:w-auto"
         >
           Modifica
         </button>
@@ -418,79 +400,63 @@ function DoctorDetailPanel({ doctor, onEdit }) {
           </div>
         )}
 
-        {!loadingAppointments &&
-          !loadingPatients &&
-          !errorAppointments &&
-          !errorPatients && (
-            <>
-              {!appointments || appointments.length === 0 ? (
-                <p className="text-xs text-slate-500">
-                  Nessun appuntamento registrato.
-                </p>
-              ) : (
-                <ul className="max-h-64 overflow-auto divide-y text-xs pr-1">
-                  {appointments.map((appt) => {
-                    const patient = patientMap.get(appt.patientId);
-                    const patientName = patient
-                      ? `${patient.name} ${patient.surname || ""}`.trim()
-                      : appt.patientId;
+        {!loadingAppointments && !loadingPatients && !errorAppointments && !errorPatients && (
+          <>
+            {!appointments || appointments.length === 0 ? (
+              <p className="text-xs text-slate-500">Nessun appuntamento registrato.</p>
+            ) : (
+              <ul className="max-h-64 overflow-auto divide-y text-xs pr-1">
+                {appointments.map((appt) => {
+                  const patient = patientMap.get(appt.patientId);
+                  const patientName = patient
+                    ? `${patient.name} ${patient.surname || ""}`.trim()
+                    : appt.patientId;
 
-                    const statusLabel =
-                      STATUS_LABELS_IT[appt.status] ||
-                      appt.status ||
-                      "N/D";
+                  const statusLabel =
+                    STATUS_LABELS_IT[appt.status] || appt.status || "N/D";
 
-                    let statusClass =
-                      "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700";
-                    if (appt.status === "BOOKED") {
-                      statusClass =
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-700";
-                    } else if (appt.status === "COMPLETED") {
-                      statusClass =
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-200 text-slate-700";
-                    } else if (appt.status === "CANCELED") {
-                      statusClass =
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-red-100 text-red-700";
-                    } else if (appt.status === "PENDING_PATIENT") {
-                      statusClass =
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-amber-100 text-amber-700";
-                    } else if (appt.status === "SENDED") {
-                      statusClass =
-                        "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-blue-100 text-blue-700";
-                    }
+                  let statusClass =
+                    "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700";
+                  if (appt.status === "BOOKED") {
+                    statusClass =
+                      "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-emerald-100 text-emerald-700";
+                  } else if (appt.status === "COMPLETED") {
+                    statusClass =
+                      "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-200 text-slate-700";
+                  } else if (appt.status === "CANCELED") {
+                    statusClass =
+                      "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-red-100 text-red-700";
+                  } else if (appt.status === "PENDING_PATIENT") {
+                    statusClass =
+                      "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-amber-100 text-amber-700";
+                  } else if (appt.status === "SENDED") {
+                    statusClass =
+                      "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-blue-100 text-blue-700";
+                  }
 
-                    return (
-                      <li key={appt.id} className="py-2 space-y-0.5">
-                        <div className="font-medium">
-                          {appt.dateTime
-                            ? formatDateTimeRome(appt.dateTime)
-                            : "Data non disponibile"}
-                        </div>
-                        <div className="text-slate-600">
-                          Paziente: {patientName}
-                        </div>
-                        {appt.reason && (
-                          <div className="text-slate-600">
-                            Motivo: {appt.reason}
-                          </div>
-                        )}
-                        <div className="text-slate-500">
-                          Stato:{" "}
-                          <span className={statusClass}>{statusLabel}</span>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </>
-          )}
+                  return (
+                    <li key={appt.id} className="py-2 space-y-0.5">
+                      <div className="font-medium">
+                        {appt.dateTime ? formatDateTimeRome(appt.dateTime) : "Data non disponibile"}
+                      </div>
+                      <div className="text-slate-600">Paziente: {patientName}</div>
+                      {appt.reason && <div className="text-slate-600">Motivo: {appt.reason}</div>}
+                      <div className="text-slate-500">
+                        Stato: <span className={statusClass}>{statusLabel}</span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
 }
 
-//Modifica dottore
+// Modifica dottore
 
 function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
   const initialDays = Array.isArray(doctor.availabilityDays)
@@ -499,9 +465,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
     ? [doctor.availabilityDays]
     : [];
 
-  const [specialization, setSpecialization] = useState(
-    doctor.specialization || ""
-  );
+  const [specialization, setSpecialization] = useState(doctor.specialization || "");
   const [selectedDays, setSelectedDays] = useState(initialDays);
   const [shift, setShift] = useState(doctor.availabilityShift || "FULL_DAY");
 
@@ -522,7 +486,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-3 sm:p-4">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-4 max-h-[90vh] flex flex-col">
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
@@ -538,15 +502,10 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
         </div>
 
         {serverError && (
-          <div className="text-sm text-red-600 mb-2">
-            {String(serverError)}
-          </div>
+          <div className="text-sm text-red-600 mb-2">{String(serverError)}</div>
         )}
 
-        <form
-          className="space-y-4 text-sm overflow-y-auto pr-1"
-          onSubmit={handleSubmit}
-        >
+        <form className="space-y-4 text-sm overflow-y-auto pr-1" onSubmit={handleSubmit}>
           {/* REPARTO (specialization) */}
           <div>
             <label className="block text-xs mb-1">Reparto</label>
@@ -574,9 +533,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
 
           {/* Giorni disponibili */}
           <div>
-            <label className="block text-xs mb-1">
-              Giorni in cui lavora
-            </label>
+            <label className="block text-xs mb-1">Giorni in cui lavora</label>
             <p className="text-[11px] text-slate-500 mb-2">
               Seleziona uno o più giorni della settimana.
             </p>
@@ -603,20 +560,16 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
 
             {selectedDays.length === 0 && (
               <p className="text-[11px] text-amber-600 mt-1">
-                Nessun giorno selezionato: i pazienti non potranno
-                prenotare appuntamenti.
+                Nessun giorno selezionato: i pazienti non potranno prenotare appuntamenti.
               </p>
             )}
           </div>
 
           {/* Fascia oraria */}
           <div>
-            <label className="block text-xs mb-1">
-              Fascia oraria di lavoro
-            </label>
+            <label className="block text-xs mb-1">Fascia oraria di lavoro</label>
             <p className="text-[11px] text-slate-500 mb-2">
-              Utilizzata per generare gli slot di prenotazione dei
-              pazienti.
+              Utilizzata per generare gli slot di prenotazione dei pazienti.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -630,9 +583,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
                 />
                 <div>
                   <div className="font-semibold">Mattina</div>
-                  <div className="text-[11px] text-slate-500">
-                    09:00 - 13:00
-                  </div>
+                  <div className="text-[11px] text-slate-500">09:00 - 13:00</div>
                 </div>
               </label>
 
@@ -646,9 +597,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
                 />
                 <div>
                   <div className="font-semibold">Pomeriggio</div>
-                  <div className="text-[11px] text-slate-500">
-                    14:00 - 18:00
-                  </div>
+                  <div className="text-[11px] text-slate-500">14:00 - 18:00</div>
                 </div>
               </label>
 
@@ -662,15 +611,13 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
                 />
                 <div>
                   <div className="font-semibold">Giornata intera</div>
-                  <div className="text-[11px] text-slate-500">
-                    09:00 - 18:00
-                  </div>
+                  <div className="text-[11px] text-slate-500">09:00 - 18:00</div>
                 </div>
               </label>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t mt-2">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2 border-t mt-2">
             <button
               type="button"
               onClick={onClose}
@@ -694,7 +641,7 @@ function EditDoctorModal({ doctor, onClose, onSave, isSaving, serverError }) {
   );
 }
 
-//Aggiungi dottore
+// Aggiungi dottore
 
 function AddDoctorModal({ specializationDefault, onClose }) {
   const queryClient = useQueryClient();
@@ -728,7 +675,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
     setIsSubmitting(true);
 
     try {
-      //crea Doctor 
+      // crea Doctor
       const doctor = await api("/api/doctors", {
         method: "POST",
         body: {
@@ -739,7 +686,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
         },
       });
 
-      //crea UserAccount collegato al DOCTOR
+      // crea UserAccount collegato al DOCTOR
       await api("/api/auth/register", {
         method: "POST",
         body: {
@@ -756,8 +703,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
     } catch (err) {
       console.error(err);
       setError(
-        err?.message ||
-          "Errore nella creazione del dottore o delle credenziali."
+        err?.message || "Errore nella creazione del dottore o delle credenziali."
       );
     } finally {
       setIsSubmitting(false);
@@ -769,13 +715,11 @@ function AddDoctorModal({ specializationDefault, onClose }) {
     : null;
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-3 sm:p-4">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-4 max-h-[90vh] flex flex-col">
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-3 gap-4">
           <div>
-            <h3 className="text-lg font-semibold">
-              Aggiungi nuovo dottore
-            </h3>
+            <h3 className="text-lg font-semibold">Aggiungi nuovo dottore</h3>
             <p className="text-xs text-slate-500">
               Crea profilo dottore e utenza di accesso.
             </p>
@@ -789,14 +733,9 @@ function AddDoctorModal({ specializationDefault, onClose }) {
           </button>
         </div>
 
-        {error && (
-          <div className="text-sm text-red-600 mb-2">{error}</div>
-        )}
+        {error && <div className="text-sm text-red-600 mb-2">{error}</div>}
 
-        <form
-          className="space-y-3 text-sm overflow-y-auto pr-1"
-          onSubmit={handleSubmit}
-        >
+        <form className="space-y-3 text-sm overflow-y-auto pr-1" onSubmit={handleSubmit}>
           {/* Nome */}
           <div>
             <label className="block text-xs mb-1">Nome e cognome</label>
@@ -829,17 +768,13 @@ function AddDoctorModal({ specializationDefault, onClose }) {
 
             <p className="text-[11px] text-slate-500 mt-1">
               Specializzazione associata:{" "}
-              <span className="font-medium">
-                {selectedMeta?.roleLabel || "—"}
-              </span>
+              <span className="font-medium">{selectedMeta?.roleLabel || "—"}</span>
             </p>
           </div>
 
           {/* Giorni disponibili */}
           <div>
-            <label className="block text-xs mb-1">
-              Giorni disponibili
-            </label>
+            <label className="block text-xs mb-1">Giorni disponibili</label>
             <p className="text-[11px] text-slate-500 mb-2">
               Seleziona uno o più giorni lavorativi per questo dottore.
             </p>
@@ -866,20 +801,16 @@ function AddDoctorModal({ specializationDefault, onClose }) {
 
             {selectedDays.length === 0 && (
               <p className="text-[11px] text-amber-600 mt-1">
-                Nessun giorno selezionato: i pazienti non potranno
-                prenotare appuntamenti.
+                Nessun giorno selezionato: i pazienti non potranno prenotare appuntamenti.
               </p>
             )}
           </div>
 
           {/* Fascia oraria */}
           <div>
-            <label className="block text-xs mb-1">
-              Fascia oraria di lavoro
-            </label>
+            <label className="block text-xs mb-1">Fascia oraria di lavoro</label>
             <p className="text-[11px] text-slate-500 mb-2">
-              Serve a generare gli slot di prenotazione (come nella
-              schermata paziente).
+              Serve a generare gli slot di prenotazione (come nella schermata paziente).
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -893,9 +824,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
                 />
                 <div>
                   <div className="font-semibold">Mattina</div>
-                  <div className="text-[11px] text-slate-500">
-                    09:00 - 13:00
-                  </div>
+                  <div className="text-[11px] text-slate-500">09:00 - 13:00</div>
                 </div>
               </label>
 
@@ -909,9 +838,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
                 />
                 <div>
                   <div className="font-semibold">Pomeriggio</div>
-                  <div className="text-[11px] text-slate-500">
-                    14:00 - 18:00
-                  </div>
+                  <div className="text-[11px] text-slate-500">14:00 - 18:00</div>
                 </div>
               </label>
 
@@ -925,9 +852,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
                 />
                 <div>
                   <div className="font-semibold">Giornata intera</div>
-                  <div className="text-[11px] text-slate-500">
-                    09:00 - 18:00
-                  </div>
+                  <div className="text-[11px] text-slate-500">09:00 - 18:00</div>
                 </div>
               </label>
             </div>
@@ -935,9 +860,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
 
           {/* Credenziali utente */}
           <div className="border-t pt-3 mt-2">
-            <h4 className="text-sm font-semibold mb-2">
-              Credenziali di accesso
-            </h4>
+            <h4 className="text-sm font-semibold mb-2">Credenziali di accesso</h4>
 
             <div className="space-y-2">
               <div>
@@ -953,9 +876,7 @@ function AddDoctorModal({ specializationDefault, onClose }) {
               </div>
 
               <div>
-                <label className="block text-xs mb-1">
-                  Password (login)
-                </label>
+                <label className="block text-xs mb-1">Password (login)</label>
                 <input
                   type="password"
                   name="password"
@@ -970,12 +891,8 @@ function AddDoctorModal({ specializationDefault, onClose }) {
           </div>
 
           {/* Azioni */}
-          <div className="flex justify-end gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-1 rounded-lg border text-sm"
-            >
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
+            <button type="button" onClick={onClose} className="px-3 py-1 rounded-lg border text-sm">
               Annulla
             </button>
             <button

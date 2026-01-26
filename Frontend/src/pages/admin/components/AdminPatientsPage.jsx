@@ -14,11 +14,7 @@ const STATUS_LABELS_IT = {
 export default function AdminPatientsPage() {
   const [selectedPatient, setSelectedPatient] = useState(null);
 
-  const {
-    data: patients,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: patients, isLoading, error } = useQuery({
     queryKey: ["patients"],
     queryFn: () => api("/api/patients"),
   });
@@ -26,18 +22,17 @@ export default function AdminPatientsPage() {
   if (isLoading) return <div>Caricamento pazienti...</div>;
   if (error)
     return (
-      <div className="text-red-600">
-        Errore nel caricamento dei pazienti.
-      </div>
+      <div className="text-red-600">Errore nel caricamento dei pazienti.</div>
     );
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
       {/* elenco pazienti */}
-      <div className="w-full max-w-sm bg-white border rounded shadow-sm">
+      <div className="w-full lg:max-w-sm bg-white border rounded shadow-sm">
         <div className="px-4 py-2 border-b">
           <h2 className="text-lg font-semibold">Pazienti</h2>
         </div>
+
         {patients.length === 0 ? (
           <p className="px-4 py-2 text-sm text-slate-500">
             Nessun paziente registrato.
@@ -54,9 +49,7 @@ export default function AdminPatientsPage() {
                     {p.name} {p.surname}
                   </div>
                   {p.email && (
-                    <div className="text-xs text-slate-500">
-                      {p.email}
-                    </div>
+                    <div className="text-xs text-slate-500">{p.email}</div>
                   )}
                 </button>
               </li>
@@ -66,7 +59,7 @@ export default function AdminPatientsPage() {
       </div>
 
       {/* dettaglio paziente + storico */}
-      <div className="flex-1">
+      <div className="w-full lg:flex-1">
         {selectedPatient ? (
           <PatientHistoryPanel patient={selectedPatient} />
         ) : (
@@ -92,7 +85,7 @@ function PatientHistoryPanel({ patient }) {
     enabled: !!id,
   });
 
-  //Prende il nome dei dottori
+  // Prende il nome dei dottori
   const {
     data: doctors,
     isLoading: loadingDoctors,
@@ -126,9 +119,7 @@ function PatientHistoryPanel({ patient }) {
       </div>
 
       <div className="pt-2 border-t">
-        <h4 className="font-semibold text-sm mb-2">
-          Storico appuntamenti
-        </h4>
+        <h4 className="font-semibold text-sm mb-2">Storico appuntamenti</h4>
 
         {(loadingAppointments || loadingDoctors) && (
           <div className="text-xs">Caricamento...</div>
@@ -149,15 +140,13 @@ function PatientHistoryPanel({ patient }) {
                   Nessun appuntamento registrato.
                 </p>
               ) : (
-                <ul className="max-h-64 overflow-auto divide-y text-xs">
+                <ul className="max-h-64 overflow-auto divide-y text-xs pr-1">
                   {appointments.map((appt) => {
                     const doctor = doctorMap.get(appt.doctorId);
                     const doctorName = doctor?.name || appt.doctorId;
 
                     const statusLabel =
-                      STATUS_LABELS_IT[appt.status] ||
-                      appt.status ||
-                      "N/D";
+                      STATUS_LABELS_IT[appt.status] || appt.status || "N/D";
 
                     let statusClass =
                       "inline-flex items-center px-2 py-0.5 rounded-full text-[11px] bg-slate-100 text-slate-700";

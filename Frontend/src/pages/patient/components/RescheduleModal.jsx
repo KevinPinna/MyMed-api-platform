@@ -127,9 +127,7 @@ function RescheduleModal({ appointment, doctor, onClose, onRescheduled }) {
     onSuccess: () => {
       setSubmitError("");
       setSubmitSuccess("Appuntamento riprogrammato con successo.");
-      if (onRescheduled) {
-        onRescheduled();
-      }
+      if (onRescheduled) onRescheduled();
     },
     onError: (err) => {
       setSubmitSuccess("");
@@ -144,173 +142,175 @@ function RescheduleModal({ appointment, doctor, onClose, onRescheduled }) {
   const todayStr = new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-40">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-5 text-sm">
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h3 className="font-semibold text-base">Modifica appuntamento</h3>
-            <p className="text-xs text-slate-500">
-              {doctor ? `con ${doctor.name}` : "Dettagli appuntamento"}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1"
-          >
-            <FiX />
-            <span>Chiudi</span>
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-black/40 z-40 flex items-end sm:items-center justify-center p-2 sm:p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg text-sm overflow-hidden">
+        {/* contenitore scrollabile (utile su mobile) */}
+        <div className="p-4 sm:p-5 max-h-[85vh] overflow-auto">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div className="min-w-0">
+              <h3 className="font-semibold text-base">Modifica appuntamento</h3>
+              <p className="text-xs text-slate-500 truncate">
+                {doctor ? `con ${doctor.name}` : "Dettagli appuntamento"}
+              </p>
+            </div>
 
-        {/* Tipo di visita */}
-        <div className="mb-3">
-          <label className="block text-xs mb-1">Tipo di visita*</label>
-          {exams.length > 0 ? (
-            <select
-              className="w-full border rounded-lg px-2 py-1 text-sm"
-              value={visitType}
-              onChange={(e) => setVisitType(e.target.value)}
+            <button
+              type="button"
+              onClick={onClose}
+              className="shrink-0 text-xs text-slate-500 hover:text-slate-700 inline-flex items-center gap-1"
             >
-              <option value="">Seleziona una visita</option>
-              {exams.map((exam) => (
-                <option key={exam} value={exam}>
-                  {exam}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <input
-              type="text"
-              className="w-full border rounded-lg px-2 py-1 text-sm"
-              value={visitType}
-              onChange={(e) => setVisitType(e.target.value)}
-            />
-          )}
-        </div>
-
-        {/* Note */}
-        <div className="mb-3">
-          <label className="block text-xs mb-1">
-            Note per il dottore (opzionale)
-          </label>
-          <textarea
-            className="w-full border rounded-lg px-2 py-1 text-sm min-h-[70px]"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-          />
-        </div>
-
-        {/* Data */}
-        <div className="mb-3">
-          <label className="block text-xs mb-1">Nuova data*</label>
-          <input
-            type="date"
-            className="border rounded-lg px-2 py-1 text-sm w-full"
-            value={selectedDate}
-            onChange={(e) => {
-              setSelectedDate(e.target.value);
-              setSelectedHour(null);
-              setSubmitError("");
-              setSubmitSuccess("");
-            }}
-            min={todayStr}
-          />
-          {selectedDate && !isWorkingDay && (
-            <p className="mt-1 text-[11px] text-red-600">
-              Il dottore non lavora in questo giorno. Scegli un altro giorno.
-            </p>
-          )}
-        </div>
-
-        {/* Slot orari */}
-        <div className="mb-4">
-          <label className="block text-xs mb-1">Nuovo orario*</label>
-
-          {loadingSlots && (
-            <p className="text-xs text-slate-500">
-              Caricamento disponibilità...
-            </p>
-          )}
-
-          {!loadingSlots && (
-            <>
-              {!canChooseSlots ? (
-                <p className="text-xs text-slate-500">
-                  Seleziona una data lavorativa per vedere gli orari
-                  disponibili.
-                </p>
-              ) : (
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {baseSlots.map((hour) => {
-                    const label = `${String(hour).padStart(2, "0")}:00`;
-                    const isBusy = busyHours.has(hour);
-                    const disabled = isBusy || mutation.isPending;
-
-                    return (
-                      <button
-                        key={hour}
-                        type="button"
-                        disabled={disabled}
-                        onClick={() => setSelectedHour(hour)}
-                        className={`px-2 py-1 rounded-lg border text-xs ${
-                          disabled
-                            ? "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
-                            : selectedHour === hour
-                            ? "border-blue-600 bg-blue-50 text-blue-700"
-                            : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                        }`}
-                      >
-                        {label}
-                        {isBusy && (
-                          <span className="ml-1 text-[10px] text-red-500">
-                            occupato
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Errori / successo */}
-        {submitError && (
-          <div className="text-xs text-red-600 mb-2">{submitError}</div>
-        )}
-        {submitSuccess && (
-          <div className="text-xs text-emerald-600 mb-2">
-            {submitSuccess}
+              <FiX />
+              <span className="hidden sm:inline">Chiudi</span>
+            </button>
           </div>
-        )}
 
-        {/* Pulsanti azione */}
-        <div className="flex justify-end gap-2 pt-2 border-t">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-3 py-1 rounded-lg border text-xs text-slate-600 hover:bg-slate-50"
-          >
-            Annulla
-          </button>
-          <button
-            type="button"
-            onClick={() => mutation.mutate()}
-            disabled={
-              mutation.isPending ||
-              !visitType ||
-              !selectedDate ||
-              selectedHour == null ||
-              !isWorkingDay
-            }
-            className="px-3 py-1 rounded-lg bg-blue-600 text-white text-xs disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-700"
-          >
-            {mutation.isPending
-              ? "Salvataggio..."
-              : "Conferma nuova data e ora"}
-          </button>
+          {/* Tipo di visita */}
+          <div className="mb-3">
+            <label className="block text-xs mb-1">Tipo di visita*</label>
+            {exams.length > 0 ? (
+              <select
+                className="w-full border rounded-lg px-2 py-2 sm:py-1 text-sm"
+                value={visitType}
+                onChange={(e) => setVisitType(e.target.value)}
+              >
+                <option value="">Seleziona una visita</option>
+                {exams.map((exam) => (
+                  <option key={exam} value={exam}>
+                    {exam}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="text"
+                className="w-full border rounded-lg px-2 py-2 sm:py-1 text-sm"
+                value={visitType}
+                onChange={(e) => setVisitType(e.target.value)}
+              />
+            )}
+          </div>
+
+          {/* Note */}
+          <div className="mb-3">
+            <label className="block text-xs mb-1">
+              Note per il dottore (opzionale)
+            </label>
+            <textarea
+              className="w-full border rounded-lg px-2 py-2 sm:py-1 text-sm min-h-[70px]"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+
+          {/* Data */}
+          <div className="mb-3">
+            <label className="block text-xs mb-1">Nuova data*</label>
+            <input
+              type="date"
+              className="border rounded-lg px-2 py-2 sm:py-1 text-sm w-full"
+              value={selectedDate}
+              onChange={(e) => {
+                setSelectedDate(e.target.value);
+                setSelectedHour(null);
+                setSubmitError("");
+                setSubmitSuccess("");
+              }}
+              min={todayStr}
+            />
+            {selectedDate && !isWorkingDay && (
+              <p className="mt-1 text-[11px] text-red-600">
+                Il dottore non lavora in questo giorno. Scegli un altro giorno.
+              </p>
+            )}
+          </div>
+
+          {/* Slot orari */}
+          <div className="mb-4">
+            <label className="block text-xs mb-1">Nuovo orario*</label>
+
+            {loadingSlots && (
+              <p className="text-xs text-slate-500">
+                Caricamento disponibilità...
+              </p>
+            )}
+
+            {!loadingSlots && (
+              <>
+                {!canChooseSlots ? (
+                  <p className="text-xs text-slate-500">
+                    Seleziona una data lavorativa per vedere gli orari
+                    disponibili.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
+                    {baseSlots.map((hour) => {
+                      const label = `${String(hour).padStart(2, "0")}:00`;
+                      const isBusy = busyHours.has(hour);
+                      const disabled = isBusy || mutation.isPending;
+
+                      return (
+                        <button
+                          key={hour}
+                          type="button"
+                          disabled={disabled}
+                          onClick={() => setSelectedHour(hour)}
+                          className={`px-2 py-2 sm:py-1 rounded-lg border text-xs ${
+                            disabled
+                              ? "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
+                              : selectedHour === hour
+                              ? "border-blue-600 bg-blue-50 text-blue-700"
+                              : "border-slate-200 hover:bg-slate-50 text-slate-700"
+                          }`}
+                        >
+                          {label}
+                          {isBusy && (
+                            <span className="ml-1 text-[10px] text-red-500">
+                              occupato
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Errori / successo */}
+          {submitError && (
+            <div className="text-xs text-red-600 mb-2">{submitError}</div>
+          )}
+          {submitSuccess && (
+            <div className="text-xs text-emerald-600 mb-2">
+              {submitSuccess}
+            </div>
+          )}
+
+          {/* Pulsanti azione */}
+          <div className="flex flex-col sm:flex-row sm:justify-end gap-2 pt-3 border-t">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-full sm:w-auto px-3 py-2 sm:py-1 rounded-lg border text-xs text-slate-600 hover:bg-slate-50"
+            >
+              Annulla
+            </button>
+            <button
+              type="button"
+              onClick={() => mutation.mutate()}
+              disabled={
+                mutation.isPending ||
+                !visitType ||
+                !selectedDate ||
+                selectedHour == null ||
+                !isWorkingDay
+              }
+              className="w-full sm:w-auto px-3 py-2 sm:py-1 rounded-lg bg-blue-600 text-white text-xs disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-700"
+            >
+              {mutation.isPending ? "Salvataggio..." : "Conferma nuova data e ora"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -134,16 +134,15 @@ export default function AdminAppointmentsPage() {
     return (
       <div className="bg-white rounded-xl shadow-sm p-4 text-sm text-red-600">
         Errore nel caricamento degli appuntamenti:
-        <pre className="text-xs mt-1">
-          {String(error?.message || "")}
-        </pre>
+        <pre className="text-xs mt-1">{String(error?.message || "")}</pre>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      {/* Header responsive */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">
             Appuntamenti totali
@@ -153,13 +152,15 @@ export default function AdminAppointmentsPage() {
           </p>
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-slate-700">
+        <label className="flex items-center gap-2 text-xs text-slate-700 sm:justify-end">
           <input
             type="checkbox"
             checked={showOnlyActive}
             onChange={(e) => setShowOnlyActive(e.target.checked)}
           />
-          Mostra solo appuntamenti attivi
+          <span className="leading-tight">
+            Mostra solo appuntamenti attivi
+          </span>
         </label>
       </div>
 
@@ -169,100 +170,100 @@ export default function AdminAppointmentsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+          {/* Wrapper responsive per tabella: scroll orizzontale su mobile */}
           <div className="max-h-[75vh] overflow-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-                <tr>
-                  <th className="p-2">Dottore</th>
-                  <th className="p-2">Paziente</th>
-                  <th className="p-2">Data &amp; ora</th>
-                  <th className="p-2">Motivo</th>
-                  <th className="p-2">Stato</th>
-                  <th className="p-2 w-56 text-right">Azioni</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visibleAppointments.map((a) => {
-                  const doctor = doctorById.get(a.doctorId);
-                  const patient = patientById.get(a.patientId);
+            <div className="min-w-[980px] w-full">
+              <table className="w-full text-sm">
+                <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th className="p-2">Dottore</th>
+                    <th className="p-2">Paziente</th>
+                    <th className="p-2">Data &amp; ora</th>
+                    <th className="p-2">Motivo</th>
+                    <th className="p-2">Stato</th>
+                    <th className="p-2 w-56 text-right">Azioni</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleAppointments.map((a) => {
+                    const doctor = doctorById.get(a.doctorId);
+                    const patient = patientById.get(a.patientId);
 
-                  const doctorRole = specializationToRoleIt(
-                    doctor?.specialization
-                  );
+                    const doctorRole = specializationToRoleIt(
+                      doctor?.specialization
+                    );
 
-                  const doctorName = doctor
-                    ? `${doctor.name}${
-                        doctorRole ? " • " + doctorRole : ""
-                      }`
-                    : a.doctorId;
+                    const doctorName = doctor
+                      ? `${doctor.name}${doctorRole ? " • " + doctorRole : ""}`
+                      : a.doctorId;
 
-                  const patientName = patient
-                    ? `${patient.name} ${patient.surname || ""}`.trim()
-                    : a.patientId;
+                    const patientName = patient
+                      ? `${patient.name} ${patient.surname || ""}`.trim()
+                      : a.patientId;
 
-                  const isCompleted = a.status === "COMPLETED";
-                  const isCanceled = a.status === "CANCELED";
-                  const isBooked = a.status === "BOOKED";
+                    const isCompleted = a.status === "COMPLETED";
+                    const isCanceled = a.status === "CANCELED";
+                    const isBooked = a.status === "BOOKED";
 
-                  const canCancel = !isCanceled && !isCompleted;
-                  const canComplete = isBooked;
+                    const canCancel = !isCanceled && !isCompleted;
+                    const canComplete = isBooked;
 
-                  return (
-                    <tr key={a.id} className="border-t">
-                      <td className="p-2 align-top">{doctorName}</td>
-                      <td className="p-2 align-top">{patientName}</td>
-                      <td className="p-2 align-top">
-                        {a.dateTime
-                          ? formatDateTimeRome(a.dateTime)
-                          : "N/D"}
-                      </td>
-                      <td className="p-2 align-top">
-                        {a.reason || "-"}
-                      </td>
-                      <td className="p-2 align-top">
-                        {renderStatusChip(a.status)}
-                      </td>
+                    return (
+                      <tr key={a.id} className="border-t">
+                        <td className="p-2 align-top">{doctorName}</td>
+                        <td className="p-2 align-top">{patientName}</td>
+                        <td className="p-2 align-top">
+                          {a.dateTime ? formatDateTimeRome(a.dateTime) : "N/D"}
+                        </td>
+                        <td className="p-2 align-top">{a.reason || "-"}</td>
+                        <td className="p-2 align-top">
+                          {renderStatusChip(a.status)}
+                        </td>
 
-                      <td className="p-2 align-top">
-                        <div className="flex justify-end gap-2">
-                          <button
-                            onClick={() => updateStatus(a.id, "cancel")}
-                            disabled={!canCancel}
-                            className={`px-2 py-1 rounded-lg text-xs ${
-                              canCancel
-                                ? "bg-yellow-500 text-white hover:bg-yellow-600"
-                                : "bg-slate-200 text-slate-500 cursor-not-allowed"
-                            }`}
-                          >
-                            Cancella
-                          </button>
+                        <td className="p-2 align-top">
+                          {/* Azioni responsive: su mobile vanno a capo se serve */}
+                          <div className="flex flex-wrap justify-end gap-2">
+                            <button
+                              onClick={() => updateStatus(a.id, "cancel")}
+                              disabled={!canCancel}
+                              className={`px-2 py-1 rounded-lg text-xs ${
+                                canCancel
+                                  ? "bg-yellow-500 text-white hover:bg-yellow-600"
+                                  : "bg-slate-200 text-slate-500 cursor-not-allowed"
+                              }`}
+                            >
+                              Cancella
+                            </button>
 
-                          <button
-                            onClick={() => updateStatus(a.id, "complete")}
-                            disabled={!canComplete}
-                            className={`px-2 py-1 rounded-lg text-xs ${
-                              canComplete
-                                ? "bg-green-600 text-white hover:bg-green-700"
-                                : "bg-slate-200 text-slate-500 cursor-not-allowed"
-                            }`}
-                          >
-                            Completa
-                          </button>
+                            <button
+                              onClick={() => updateStatus(a.id, "complete")}
+                              disabled={!canComplete}
+                              className={`px-2 py-1 rounded-lg text-xs ${
+                                canComplete
+                                  ? "bg-green-600 text-white hover:bg-green-700"
+                                  : "bg-slate-200 text-slate-500 cursor-not-allowed"
+                              }`}
+                            >
+                              Completa
+                            </button>
 
-                          <button
-                            onClick={() => remove(a.id)}
-                            className="px-2 py-1 rounded-lg text-xs bg-red-600 text-white hover:bg-red-700"
-                          >
-                            Elimina
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                            <button
+                              onClick={() => remove(a.id)}
+                              className="px-2 py-1 rounded-lg text-xs bg-red-600 text-white hover:bg-red-700"
+                            >
+                              Elimina
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
+
+          {/* Nota: min-w + overflow-auto = tabella usabile su mobile senza rompere lo stile */}
         </div>
       )}
     </div>

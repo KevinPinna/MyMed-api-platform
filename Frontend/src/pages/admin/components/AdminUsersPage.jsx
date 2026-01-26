@@ -116,14 +116,13 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      <div className="flex gap-6">
+      {/* Layout responsive: su mobile impila, su lg torna a 2 colonne */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         {/* Colonna sinistra: elenco Admin esistenti */}
-        <div className="w-full max-w-md bg-white border rounded-xl shadow-sm flex flex-col">
+        <div className="w-full lg:max-w-md bg-white border rounded-xl shadow-sm flex flex-col">
           <div className="px-4 py-3 border-b">
             <h2 className="text-lg font-semibold">Utenti amministratori</h2>
-            <p className="text-xs text-slate-500">
-              Elenco degli admin.
-            </p>
+            <p className="text-xs text-slate-500">Elenco degli admin.</p>
           </div>
 
           <div className="flex-1 overflow-auto">
@@ -146,7 +145,8 @@ export default function AdminUsersPage() {
               <ul className="divide-y text-sm">
                 {admins.map((admin) => (
                   <li key={admin.id} className="px-4 py-3">
-                    <div className="flex items-start justify-between gap-3">
+                    {/* Item responsive: su mobile bottoni in riga, su sm tornano colonna */}
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                       <div>
                         <div className="font-medium text-slate-800">
                           {admin.name} {admin.surname}
@@ -160,16 +160,15 @@ export default function AdminUsersPage() {
                           </div>
                         )}
                         <div className="mt-1 text-[11px] text-slate-400">
-                          ID:{" "}
-                          <span className="font-mono">{admin.id}</span>
+                          ID: <span className="font-mono">{admin.id}</span>
                         </div>
                       </div>
 
-                      <div className="flex flex-col items-end gap-1">
+                      <div className="flex gap-2 sm:flex-col sm:items-end sm:gap-1">
                         <button
                           type="button"
                           onClick={() => setEditingAdmin(admin)}
-                          className="px-2 py-1 rounded-lg border text-[11px] text-slate-700 hover:bg-slate-50"
+                          className="px-2 py-1 rounded-lg border text-[11px] text-slate-700 hover:bg-slate-50 w-full sm:w-auto"
                         >
                           Modifica
                         </button>
@@ -186,7 +185,7 @@ export default function AdminUsersPage() {
                             }
                           }}
                           disabled={deleteAdminMutation.isPending}
-                          className="px-2 py-1 rounded-lg text-[11px] text-red-600 hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed"
+                          className="px-2 py-1 rounded-lg text-[11px] text-red-600 hover:bg-red-50 disabled:opacity-60 disabled:cursor-not-allowed w-full sm:w-auto"
                         >
                           Elimina
                         </button>
@@ -200,7 +199,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Colonna destra: form creazione nuovo admin */}
-        <div className="flex-1 bg-white border rounded-xl shadow-sm p-4">
+        <div className="w-full lg:flex-1 bg-white border rounded-xl shadow-sm p-4">
           <h3 className="text-base font-semibold mb-1">
             Crea nuovo utente admin
           </h3>
@@ -218,7 +217,8 @@ export default function AdminUsersPage() {
           )}
 
           <form className="space-y-3" onSubmit={handleSubmit}>
-            <div className="grid grid-cols-2 gap-3">
+            {/* Grid responsive: 1 col su mobile, 2 col da sm */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium mb-1">
                   Nome *
@@ -248,7 +248,7 @@ export default function AdminUsersPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium mb-1">
                   Email (login) *
@@ -297,7 +297,8 @@ export default function AdminUsersPage() {
               </p>
             </div>
 
-            <div className="pt-2 flex justify-end gap-2">
+            {/* Azioni responsive: su mobile impila, su sm affianca */}
+            <div className="pt-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               <button
                 type="button"
                 onClick={() => {
@@ -311,7 +312,7 @@ export default function AdminUsersPage() {
                   setSubmitError("");
                   setSubmitSuccess("");
                 }}
-                className="px-3 py-1.5 rounded-lg border text-xs text-slate-600 hover:bg-slate-50"
+                className="px-3 py-1.5 rounded-lg border text-xs text-slate-600 hover:bg-slate-50 w-full sm:w-auto"
                 disabled={isSubmitting}
               >
                 Reset
@@ -320,11 +321,9 @@ export default function AdminUsersPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-700"
+                className="px-4 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-700 w-full sm:w-auto"
               >
-                {isSubmitting
-                  ? "Creazione in corso..."
-                  : "Crea utente admin"}
+                {isSubmitting ? "Creazione in corso..." : "Crea utente admin"}
               </button>
             </div>
           </form>
@@ -366,9 +365,9 @@ function EditAdminModal({ admin, onClose, onSave, isSaving, serverError }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4">
-        <div className="flex items-start justify-between mb-3">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-3 sm:p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-4 max-h-[90vh] overflow-auto">
+        <div className="flex items-start justify-between mb-3 gap-4">
           <div>
             <h3 className="text-lg font-semibold">Modifica admin</h3>
             <p className="text-xs text-slate-500">
@@ -392,7 +391,7 @@ function EditAdminModal({ admin, onClose, onSave, isSaving, serverError }) {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-3 text-sm">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs mb-1">Nome</label>
               <input
@@ -443,11 +442,11 @@ function EditAdminModal({ admin, onClose, onSave, isSaving, serverError }) {
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg border text-xs"
+              className="px-3 py-1.5 rounded-lg border text-xs w-full sm:w-auto"
               disabled={isSaving}
             >
               Annulla
@@ -455,7 +454,7 @@ function EditAdminModal({ admin, onClose, onSave, isSaving, serverError }) {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-4 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-4 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium disabled:opacity-60 disabled:cursor-not-allowed w-full sm:w-auto"
             >
               {isSaving ? "Salvataggio..." : "Salva modifiche"}
             </button>

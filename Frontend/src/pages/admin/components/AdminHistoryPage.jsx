@@ -124,7 +124,8 @@ export default function AdminHistoryPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      {/* Header responsive */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">
             Storico appuntamenti
@@ -134,7 +135,8 @@ export default function AdminHistoryPage() {
           </p>
         </div>
 
-        <div className="flex gap-2 text-xs">
+        {/* Filtri responsive: su mobile vanno a capo e scrollano se stretti */}
+        <div className="flex gap-2 text-xs flex-wrap sm:flex-nowrap sm:justify-end sm:ml-4">
           <button
             type="button"
             onClick={() => setStatusFilter("ALL")}
@@ -188,47 +190,50 @@ export default function AdminHistoryPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+          {/* Scroll verticale + orizzontale su schermi piccoli */}
           <div className="max-h-[70vh] overflow-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-                <tr>
-                  <th className="px-4 py-2">Data e ora</th>
-                  <th className="px-4 py-2">Dottore</th>
-                  <th className="px-4 py-2">Paziente</th>
-                  <th className="px-4 py-2">Motivo</th>
-                  <th className="px-4 py-2">Stato</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredAppointments.map((appt) => {
-                  const doctor = doctorById.get(appt.doctorId);
-                  const patient = patientById.get(appt.patientId);
+            <div className="min-w-[860px] w-full">
+              <table className="min-w-full text-sm">
+                <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th className="px-4 py-2">Data e ora</th>
+                    <th className="px-4 py-2">Dottore</th>
+                    <th className="px-4 py-2">Paziente</th>
+                    <th className="px-4 py-2">Motivo</th>
+                    <th className="px-4 py-2">Stato</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAppointments.map((appt) => {
+                    const doctor = doctorById.get(appt.doctorId);
+                    const patient = patientById.get(appt.patientId);
 
-                  const doctorName = doctor?.name || appt.doctorId;
-                  const patientName = patient
-                    ? `${patient.name} ${patient.surname || ""}`.trim()
-                    : appt.patientId;
+                    const doctorName = doctor?.name || appt.doctorId;
+                    const patientName = patient
+                      ? `${patient.name} ${patient.surname || ""}`.trim()
+                      : appt.patientId;
 
-                  return (
-                    <tr key={appt.id} className="border-t">
-                      <td className="px-4 py-2 align-top">
-                        {appt.dateTime
-                          ? formatDateTimeRome(appt.dateTime)
-                          : "N/D"}
-                      </td>
-                      <td className="px-4 py-2 align-top">{doctorName}</td>
-                      <td className="px-4 py-2 align-top">{patientName}</td>
-                      <td className="px-4 py-2 align-top">
-                        {appt.reason || "-"}
-                      </td>
-                      <td className="px-4 py-2 align-top">
-                        {renderStatusChip(appt.status)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                    return (
+                      <tr key={appt.id} className="border-t">
+                        <td className="px-4 py-2 align-top">
+                          {appt.dateTime
+                            ? formatDateTimeRome(appt.dateTime)
+                            : "N/D"}
+                        </td>
+                        <td className="px-4 py-2 align-top">{doctorName}</td>
+                        <td className="px-4 py-2 align-top">{patientName}</td>
+                        <td className="px-4 py-2 align-top">
+                          {appt.reason || "-"}
+                        </td>
+                        <td className="px-4 py-2 align-top">
+                          {renderStatusChip(appt.status)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}

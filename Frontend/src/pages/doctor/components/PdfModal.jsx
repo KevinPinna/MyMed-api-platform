@@ -33,7 +33,7 @@ export default function PdfModal({ report, onClose }) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-3 sm:p-4">
       <style>{`
         @media print {
           body * {
@@ -53,16 +53,16 @@ export default function PdfModal({ report, onClose }) {
       `}</style>
 
       <div className="bg-transparent w-full max-w-3xl max-h-[95vh] flex flex-col">
-        <div className="flex justify-end mb-2 text-sm">
+        <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 mb-2 text-sm">
           <button
             onClick={onClose}
-            className="px-2 py-1 rounded bg-slate-700 text-white hover:bg-black mr-2"
+            className="px-2 py-1 rounded bg-slate-700 text-white hover:bg-black w-full sm:w-auto"
           >
             Chiudi ✕
           </button>
           <button
             onClick={handlePrint}
-            className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+            className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 w-full sm:w-auto"
           >
             Stampa / Scarica
           </button>
@@ -72,9 +72,9 @@ export default function PdfModal({ report, onClose }) {
           id="pdf-print-area"
           className="bg-white shadow-xl border mx-auto w-full h-full overflow-auto"
         >
-          <div className="p-8 text-[13px] leading-relaxed">
+          <div className="p-4 sm:p-8 text-[13px] leading-relaxed">
             {/* Intestazione */}
-            <div className="flex justify-between items-start mb-6 border-b pb-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-start mb-6 border-b pb-3">
               <div>
                 <div className="font-semibold text-xs uppercase tracking-wide">
                   Azienda socio-sanitaria locale
@@ -87,7 +87,8 @@ export default function PdfModal({ report, onClose }) {
                   {doctor?.specialization || "Ambulatorio specialistico"}
                 </div>
               </div>
-              <div className="text-right text-xs">
+
+              <div className="text-left sm:text-right text-xs">
                 <div className="font-bold text-sm">
                   CARTELLA AMBULATORIALE - DIAGNOSI
                 </div>
@@ -102,28 +103,29 @@ export default function PdfModal({ report, onClose }) {
 
             {/* Dati paziente */}
             <div className="border rounded mb-4 text-xs">
-              <div className="flex justify-between px-3 py-2 border-b">
-                <div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-between px-3 py-2 border-b">
+                <div className="min-w-0">
                   <span className="font-semibold mr-1">Paziente:</span>
-                  <span className="uppercase">
+                  <span className="uppercase break-words">
                     {patient ? formatPatientName(patient) : report.patientId}
                   </span>
                 </div>
-                <div>
+                <div className="shrink-0">
                   <span className="font-semibold mr-1">Data visita:</span>
                   {appointment?.dateTime
                     ? formatDateTimeRome(appointment.dateTime)
                     : "N/D"}
                 </div>
               </div>
-              <div className="flex justify-between px-3 py-2">
-                <div>
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:justify-between px-3 py-2">
+                <div className="min-w-0">
                   <span className="font-semibold mr-1">Dottore:</span>
-                  <span className="uppercase">
+                  <span className="uppercase break-words">
                     {doctor ? doctor.name : report.doctorId}
                   </span>
                 </div>
-                <div>
+                <div className="shrink-0">
                   <span className="font-semibold mr-1">Prestazione:</span> Visita
                   specialistica
                 </div>
@@ -133,7 +135,7 @@ export default function PdfModal({ report, onClose }) {
             {/* Diagnosi */}
             <div className="mt-5">
               <div className="font-bold uppercase text-sm mb-2">Diagnosi</div>
-              <div className="border rounded px-3 py-2 min-h-[80px] whitespace-pre-wrap">
+              <div className="border rounded px-3 py-2 min-h-[80px] whitespace-pre-wrap break-words">
                 {report.objectiveDiagnosis || "Nessuna diagnosi inserita."}
               </div>
             </div>
@@ -143,7 +145,7 @@ export default function PdfModal({ report, onClose }) {
               <div className="font-semibold text-sm mb-1">
                 Anamnesi patologica
               </div>
-              <div className="border rounded px-3 py-2 min-h-[60px] whitespace-pre-wrap">
+              <div className="border rounded px-3 py-2 min-h-[60px] whitespace-pre-wrap break-words">
                 {report.anamnesis || "Nessuna anamnesi inserita."}
               </div>
             </div>
@@ -153,7 +155,7 @@ export default function PdfModal({ report, onClose }) {
               <div className="font-semibold text-sm mb-1">
                 Terapia / Prescrizioni
               </div>
-              <div className="border rounded px-3 py-2 min-h-[60px] whitespace-pre-wrap">
+              <div className="border rounded px-3 py-2 min-h-[60px] whitespace-pre-wrap break-words">
                 {report.therapy || "Nessuna terapia o prescrizione inserita."}
               </div>
             </div>

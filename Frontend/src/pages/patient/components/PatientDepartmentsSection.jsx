@@ -30,9 +30,7 @@ export default function PatientDepartmentsSection() {
     return groups;
   }, [doctors]);
 
-  const specKeys = Object.keys(groupedBySpec).filter(
-    (s) => s !== "SENZA_REPARTO"
-  );
+  const specKeys = Object.keys(groupedBySpec).filter((s) => s !== "SENZA_REPARTO");
 
   if (isLoading) {
     return (
@@ -54,21 +52,18 @@ export default function PatientDepartmentsSection() {
   }
 
   return (
-    <div className="flex gap-6">
+    <div className="flex flex-col lg:flex-row gap-6">
       {/* Colonna reparti */}
-      <div className="w-64 bg-white rounded-xl shadow-sm border p-4">
+      <div className="w-full lg:w-64 bg-white rounded-xl shadow-sm border p-4">
         <h2 className="text-sm font-semibold mb-3">Reparti disponibili</h2>
 
         {specKeys.length === 0 && (
-          <p className="text-xs text-slate-500">
-            Nessun reparto configurato.
-          </p>
+          <p className="text-xs text-slate-500">Nessun reparto configurato.</p>
         )}
 
         <ul className="space-y-1 text-sm">
           {specKeys.map((spec) => {
-            const label =
-              patientSpecializationLabels[spec]?.reparto || spec;
+            const label = patientSpecializationLabels[spec]?.reparto || spec;
             return (
               <li key={spec}>
                 <button
@@ -92,11 +87,9 @@ export default function PatientDepartmentsSection() {
       </div>
 
       {/* Colonna dottori + booking */}
-      <div className="flex-1 flex gap-6">
+      <div className="flex-1 flex flex-col lg:flex-row gap-6">
         <div className="flex-1 bg-white rounded-xl shadow-sm border p-4">
-          <h2 className="text-sm font-semibold mb-3">
-            Dottori del reparto
-          </h2>
+          <h2 className="text-sm font-semibold mb-3">Dottori del reparto</h2>
 
           {!selectedSpec ? (
             <p className="text-xs text-slate-500">
@@ -125,12 +118,9 @@ export default function PatientDepartmentsSection() {
           )}
         </div>
 
-        <div className="w-[420px]">
+        <div className="w-full lg:w-[420px]">
           {selectedDoctor ? (
-            <BookingPanel
-              doctor={selectedDoctor}
-              onClose={() => setSelectedDoctor(null)}
-            />
+            <BookingPanel doctor={selectedDoctor} onClose={() => setSelectedDoctor(null)} />
           ) : (
             <div className="bg-white rounded-xl shadow-sm border p-4 text-xs text-slate-500">
               Seleziona un dottore per prenotare una visita.
@@ -159,18 +149,16 @@ function DoctorCard({ doctor, onSelect, selected }) {
       type="button"
       onClick={onSelect}
       className={`w-full border rounded-lg px-3 py-2 text-left text-sm flex flex-col gap-1 ${
-        selected
-          ? "border-blue-600 bg-blue-50"
-          : "border-slate-200 hover:bg-slate-50"
+        selected ? "border-blue-600 bg-blue-50" : "border-slate-200 hover:bg-slate-50"
       }`}
     >
-      <div className="font-semibold text-slate-800">{doctor.name}</div>
-      <div className="text-xs text-slate-600">
+      <div className="font-semibold text-slate-800 break-words">{doctor.name}</div>
+      <div className="text-xs text-slate-600 break-words">
         {titolo && <span>{titolo}</span>}
         {reparto && <span className="ml-1 text-slate-500">· {reparto}</span>}
       </div>
       {days.length > 0 && (
-        <div className="text-[11px] text-slate-500">
+        <div className="text-[11px] text-slate-500 break-words">
           Giorni: {days.map((d) => weekdayLabels[d] || d).join(", ")}
         </div>
       )}
@@ -280,10 +268,7 @@ function BookingPanel({ doctor, onClose }) {
         throw new Error("Compila tutti i campi obbligatori.");
       }
 
-      const isoDateTime = `${selectedDate}T${String(selectedHour).padStart(
-        2,
-        "0"
-      )}:00:00`;
+      const isoDateTime = `${selectedDate}T${String(selectedHour).padStart(2, "0")}:00:00`;
 
       const body = {
         doctorId: doctor.id,
@@ -344,18 +329,18 @@ function BookingPanel({ doctor, onClose }) {
 
   return (
     <div className="bg-white rounded-xl shadow-sm border p-4 text-sm">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="font-semibold">
-          Prenota visita con{" "}
-          <span className="text-blue-700">{doctor.name}</span>
+      <div className="flex items-start sm:items-center justify-between gap-3 mb-3">
+        <h3 className="font-semibold break-words min-w-0">
+          Prenota visita con <span className="text-blue-700">{doctor.name}</span>
         </h3>
+
         <button
           type="button"
           onClick={onClose}
-          className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1"
+          className="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1 shrink-0"
         >
           <FiX />
-          <span>Chiudi</span>
+          <span className="hidden sm:inline">Chiudi</span>
         </button>
       </div>
 
@@ -388,9 +373,7 @@ function BookingPanel({ doctor, onClose }) {
 
       {/* Note */}
       <div className="mb-3">
-        <label className="block text-xs mb-1">
-          Note per il dottore (opzionale)
-        </label>
+        <label className="block text-xs mb-1">Note per il dottore (opzionale)</label>
         <textarea
           className="w-full border rounded-lg px-2 py-1 text-sm min-h-[70px]"
           value={notes}
@@ -426,27 +409,24 @@ function BookingPanel({ doctor, onClose }) {
         <label className="block text-xs mb-1">Orario*</label>
 
         {loadingSlots && (
-          <p className="text-xs text-slate-500">
-            Caricamento disponibilità...
-          </p>
+          <p className="text-xs text-slate-500">Caricamento disponibilità...</p>
         )}
 
         {!loadingSlots && (
           <>
             {!canChooseSlots ? (
               <p className="text-xs text-slate-500">
-                Seleziona una data lavorativa per vedere gli orari
-                disponibili.
+                Seleziona una data lavorativa per vedere gli orari disponibili.
               </p>
             ) : (
               <>
                 {allDayBusy && (
                   <p className="text-[11px] text-red-600 mb-1">
-                    Nessuno slot disponibile per questo giorno: il dottore ha
-                    già tutti gli orari occupati.
+                    Nessuno slot disponibile per questo giorno: il dottore ha già tutti gli orari occupati.
                   </p>
                 )}
-                <div className="grid grid-cols-2 gap-2 mt-2">
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
                   {baseSlots.map((hour) => {
                     const label = `${String(hour).padStart(2, "0")}:00`;
                     const isBusy = busyHours.has(hour);
@@ -483,13 +463,9 @@ function BookingPanel({ doctor, onClose }) {
       </div>
 
       {/* Errori / successo */}
-      {submitError && (
-        <div className="text-xs text-red-600 mb-2">{submitError}</div>
-      )}
+      {submitError && <div className="text-xs text-red-600 mb-2">{submitError}</div>}
       {submitSuccess && (
-        <div className="text-xs text-emerald-600 mb-2">
-          {submitSuccess}
-        </div>
+        <div className="text-xs text-emerald-600 mb-2">{submitSuccess}</div>
       )}
 
       {/* Pulsante conferma */}
@@ -505,9 +481,7 @@ function BookingPanel({ doctor, onClose }) {
         }
         className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm disabled:opacity-60 disabled:cursor-not-allowed hover:bg-blue-700"
       >
-        {mutation.isPending
-          ? "Prenotazione in corso..."
-          : "Conferma prenotazione"}
+        {mutation.isPending ? "Prenotazione in corso..." : "Conferma prenotazione"}
       </button>
     </div>
   );
