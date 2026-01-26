@@ -51,4 +51,5 @@
 ======= Accessibilità ========
 L'app è funzionante e accessibile al sito:
 - mymed-app.it
-é possibile provarlo in locale scaricando l'intera repository e configurando un server in locale MongoDB (Vedi Documentazione originale).
+È possibile provarlo in locale scaricando l'intera repository e configurando un server in locale MongoDB (Vedi Documentazione originale).
+Nella repository è presente un backup del database usato per i test.
