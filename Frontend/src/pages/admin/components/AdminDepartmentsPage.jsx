@@ -99,7 +99,7 @@ export default function AdminDepartmentsPage() {
 
   return (
     <>
-      {/* Layout responsive: su mobile impila, su lg torna a 3 colonne */}
+      {/* Layout responsive: su mobile impila */}
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         {/* Colonna sinistra: reparti */}
         <div className="w-full lg:w-64 bg-white rounded-xl shadow-sm border p-4">
@@ -255,7 +255,6 @@ function DoctorCard({ doctor, onSelect, onEdit, onRemove, selected }) {
           : "border-slate-200 bg-white hover:bg-slate-50"
       }`}
     >
-      {/* Header card responsive: su mobile può andare a capo */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
         <button type="button" onClick={onSelect} className="text-left flex-1">
           <div className="font-semibold text-slate-800">{doctor.name}</div>
@@ -277,7 +276,6 @@ function DoctorCard({ doctor, onSelect, onEdit, onRemove, selected }) {
           )}
         </button>
 
-        {/* Bottoni: su mobile vanno in riga, su sm tornano colonna */}
         <div className="flex gap-2 sm:flex-col sm:gap-1 sm:items-end">
           <button
             type="button"

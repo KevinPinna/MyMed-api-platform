@@ -124,7 +124,6 @@ export default function AdminHistoryPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header responsive */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">
@@ -134,8 +133,6 @@ export default function AdminHistoryPage() {
             Vista globale di tutte le visite con il relativo stato.
           </p>
         </div>
-
-        {/* Filtri responsive: su mobile vanno a capo e scrollano se stretti */}
         <div className="flex gap-2 text-xs flex-wrap sm:flex-nowrap sm:justify-end sm:ml-4">
           <button
             type="button"
@@ -190,7 +187,7 @@ export default function AdminHistoryPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          {/* Scroll verticale + orizzontale su schermi piccoli */}
+          {/* Scroll verticale e orizzontale su schermi piccoli */}
           <div className="max-h-[70vh] overflow-auto">
             <div className="min-w-[860px] w-full">
               <table className="min-w-full text-sm">

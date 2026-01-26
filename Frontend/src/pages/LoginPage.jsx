@@ -102,8 +102,6 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-
-        {/* piccolo footer mobile-friendly */}
         <p className="text-center text-[11px] text-slate-500 mt-4 px-2">
           © {new Date().getFullYear()} MyMed — piattaforma demo
         </p>

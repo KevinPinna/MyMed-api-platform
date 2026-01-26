@@ -116,7 +116,7 @@ export default function AdminUsersPage() {
 
   return (
     <>
-      {/* Layout responsive: su mobile impila, su lg torna a 2 colonne */}
+      {/* Layout responsive: su mobile impila */}
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
         {/* Colonna sinistra: elenco Admin esistenti */}
         <div className="w-full lg:max-w-md bg-white border rounded-xl shadow-sm flex flex-col">
@@ -145,7 +145,6 @@ export default function AdminUsersPage() {
               <ul className="divide-y text-sm">
                 {admins.map((admin) => (
                   <li key={admin.id} className="px-4 py-3">
-                    {/* Item responsive: su mobile bottoni in riga, su sm tornano colonna */}
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                       <div>
                         <div className="font-medium text-slate-800">
@@ -217,7 +216,6 @@ export default function AdminUsersPage() {
           )}
 
           <form className="space-y-3" onSubmit={handleSubmit}>
-            {/* Grid responsive: 1 col su mobile, 2 col da sm */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium mb-1">
@@ -297,7 +295,7 @@ export default function AdminUsersPage() {
               </p>
             </div>
 
-            {/* Azioni responsive: su mobile impila, su sm affianca */}
+            {/* Azioni responsive: su mobile impila */}
             <div className="pt-2 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
               <button
                 type="button"

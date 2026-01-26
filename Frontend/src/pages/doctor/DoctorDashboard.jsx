@@ -17,7 +17,6 @@ export default function DoctorDashboard() {
   const [activeSection, setActiveSection] = useState("home");
   const [pdfReport, setPdfReport] = useState(null);
 
-  // NEW
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const {
@@ -159,9 +158,7 @@ export default function DoctorDashboard() {
         </div>
       </aside>
 
-      {/* CONTENT */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
         <header className="h-16 bg-white border-b px-4 sm:px-6 flex items-center justify-between">
           <button
             type="button"

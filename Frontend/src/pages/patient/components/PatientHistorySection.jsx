@@ -100,7 +100,6 @@ export default function PatientHistorySection() {
             Non ci sono visite completate o annullate al momento.
           </p>
         ) : (
-          // Scrollbar verticale + orizzontale se necessario
           <div className="max-h-[420px] overflow-y-auto overflow-x-auto border rounded-lg">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-100">

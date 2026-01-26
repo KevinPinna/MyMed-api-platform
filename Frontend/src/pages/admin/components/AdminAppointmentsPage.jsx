@@ -141,7 +141,6 @@ export default function AdminAppointmentsPage() {
 
   return (
     <div className="space-y-4">
-      {/* Header responsive */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-semibold text-slate-900">
@@ -170,7 +169,6 @@ export default function AdminAppointmentsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          {/* Wrapper responsive per tabella: scroll orizzontale su mobile */}
           <div className="max-h-[75vh] overflow-auto">
             <div className="min-w-[980px] w-full">
               <table className="w-full text-sm">
@@ -221,7 +219,6 @@ export default function AdminAppointmentsPage() {
                         </td>
 
                         <td className="p-2 align-top">
-                          {/* Azioni responsive: su mobile vanno a capo se serve */}
                           <div className="flex flex-wrap justify-end gap-2">
                             <button
                               onClick={() => updateStatus(a.id, "cancel")}
@@ -262,8 +259,6 @@ export default function AdminAppointmentsPage() {
               </table>
             </div>
           </div>
-
-          {/* Nota: min-w + overflow-auto = tabella usabile su mobile senza rompere lo stile */}
         </div>
       )}
     </div>

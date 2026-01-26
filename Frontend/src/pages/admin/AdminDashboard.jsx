@@ -152,9 +152,7 @@ export default function AdminLayout() {
         </div>
       </aside>
 
-      {/* RIGHT COLUMN */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* HEADER TOP */}
         <header className="h-16 bg-white border-b px-4 sm:px-6 flex items-center justify-between">
           {/* Hamburger */}
           <button

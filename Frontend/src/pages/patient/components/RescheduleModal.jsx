@@ -144,7 +144,6 @@ function RescheduleModal({ appointment, doctor, onClose, onRescheduled }) {
   return (
     <div className="fixed inset-0 bg-black/40 z-40 flex items-end sm:items-center justify-center p-2 sm:p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg text-sm overflow-hidden">
-        {/* contenitore scrollabile (utile su mobile) */}
         <div className="p-4 sm:p-5 max-h-[85vh] overflow-auto">
           <div className="flex items-start justify-between gap-3 mb-3">
             <div className="min-w-0">

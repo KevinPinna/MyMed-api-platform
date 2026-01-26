@@ -1,4 +1,3 @@
-// src/pages/PatientRegisterPage.jsx
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -45,7 +44,7 @@ export default function PatientRegisterPage() {
         email: form.email,
         phone: form.phone || null,
         password: form.password,
-        confirmPassword: form.confirmPassword, // 👈 IMPORTANTE
+        confirmPassword: form.confirmPassword,
       });
 
       navigate("/patient");
@@ -90,7 +89,7 @@ export default function PatientRegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Nome + Cognome: stacked su mobile, 2 colonne da sm */}
+            {/* Nome + Cognome */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">
@@ -173,7 +172,7 @@ export default function PatientRegisterPage() {
               />
             </div>
 
-            {/* Password + Conferma: stacked su mobile, 2 colonne da sm */}
+            {/* Password + Conferma */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-slate-700 mb-1">

@@ -116,7 +116,7 @@ export default function DoctorAppointmentsSection({
 
   return (
     <>
-      {/* Layout responsive: su mobile impila, da lg torna a 2 colonne */}
+      {/* Layout responsive: su mobile impila */}
       <div className="flex flex-col gap-4 lg:flex-row lg:gap-4">
         {/* colonna sinistra: lista appuntamenti */}
         <div className="w-full lg:w-3/5 bg-white border rounded-xl shadow-sm p-4 flex flex-col">
@@ -129,7 +129,6 @@ export default function DoctorAppointmentsSection({
           ) : (
             <div className="overflow-x-auto">
               <div className="max-h-[480px] overflow-y-auto">
-                {/* min-w per evitare tabella “schiacciata” su mobile */}
                 <div className="min-w-[880px] w-full">
                   <table className="w-full text-sm border rounded-lg overflow-hidden">
                     <thead className="bg-slate-100">
@@ -226,7 +225,6 @@ export default function DoctorAppointmentsSection({
                             </td>
 
                             <td className="px-3 py-2 align-top">
-                              {/* Azioni: wrap + min-w per evitare pulsanti “microscopici” */}
                               <div className="flex flex-wrap gap-1">
                                 {/* Accetta solo per SENDED */}
                                 {isSended && (
